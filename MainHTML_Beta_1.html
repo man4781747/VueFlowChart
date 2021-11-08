@@ -1,0 +1,238 @@
+ <!-- {% verbatim %} -->
+ <!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>Vue Flow Chart</title>
+	<!-- 導入Vue -->
+	<script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+	<link rel="stylesheet" href="./flowChart.css" />
+
+
+</head>
+<body>
+	<div id="app">
+		<div id='tool-box'>
+			<button @click="addNewTaskItem()">增加Task</button>
+		</div>
+	
+		<div id='draw-ground' 
+			style='margin: 50px 20px;'
+			@mousedown.left="moveBackgroundCanvas" 
+			@mousewheel="mousewheelBackgroundCanvas"
+			@contextmenu.prevent.stop="moveRigthUpOnBackgroundCanvas" 
+			>
+			<div 
+			id='draw-ground-canvas' 
+			:style="'transform: scale('+canvasScale+') translate('+canvasTranslateX+'px, '+canvasTranslateY+'px);'"
+			>
+				<div class='svg-canvas-task-background' v-for="(item,key,index) in D_taskList_computed"
+					:id="'task_'+key"
+					:style="'top:'+item.y+'px;left:'+item.x+'px;'"
+					@mousedown.left.stop="moveTaskItem($event, item, key)"
+					@contextmenu.prevent.stop="delTaskItem(key)"
+				>
+					<div class='svg-canvas-task'
+						:class="D_getTaskProcessList[key].entryPoint==true?'task-entry-point':''"
+					>
+						<div style="display:grid;">
+							<div><label>流程名稱</label><input v-model="item.taskName" placeholder="請輸入"></div>
+							<div><label>.py檔案</label><input v-model="item.taskName"></div>
+						</div>
+						
+						<div 
+						:id="'task_'+key+'_l'"
+						class='svg-canvas-task-connect-point l-point'
+							@mousedown.left.stop="clickPointerOnTaskItem($event, item, key, 'l')"
+
+						></div>
+						<div 
+						:id="'task_'+key+'_r'"
+						class='svg-canvas-task-connect-point r-point'
+							@mousedown.left.stop="clickPointerOnTaskItem($event, item, key, 'r')"
+						></div>
+						<div 
+						:id="'task_'+key+'_t'"
+						class='svg-canvas-task-connect-point t-point'
+							@mousedown.left.stop="clickPointerOnTaskItem($event, item, key, 't')"
+						></div>
+						<div 
+						:id="'task_'+key+'_b'"
+						class='svg-canvas-task-connect-point b-point'
+							@mousedown.left.stop="clickPointerOnTaskItem($event, item, key, 'b')"
+						></div>
+						
+					</div>
+				</div>
+
+				<svg v-for="(D_LinkItem,S_uuid, index) in D_pathList"
+					class='link-stoke-svg-background'
+					:id="'link_'+S_uuid"
+					:key='S_uuid'
+					:style="'position: absolute;left:'+D_LinkItem.bg_left+'px;'+
+							'top:'+D_LinkItem.bg_top+'px;'+
+							'height:'+D_LinkItem.bg_height+'px;'+
+							'width:'+D_LinkItem.bg_width+'px;'">
+					<defs> 
+						<marker id="arrow" markerWidth="40" markerHeight="40" refx="10" refy="3" orient="auto" markerUnits="strokeWidth" viewBox="0 0 80 80"> 
+							<path d="M0,0 L0,6 L9,3 z" fill="#f00" /> 
+						</marker> 
+					</defs>
+					<g>
+						<path stroke="transparent" stroke-width="2" fill="none" 
+						:id="'path_'+S_uuid"
+						marker-end="url(#arrow)"
+						:d="'M'+D_LinkItem.start_x+','+D_LinkItem.start_y+
+						    'L'+D_LinkItem.end_x+','+D_LinkItem.end_y" 
+						class='stoke'
+						></path>
+						
+						<!-- <circle :cx="D_LinkItem.start_x" :cy="D_LinkItem.start_y" r="10"/> -->
+						<!-- <circle :cx="D_LinkItem.mid_x" :cy="D_LinkItem.mid_y" r="10"/> -->
+						<!-- <circle :cx="D_LinkItem.q_x" :cy="D_LinkItem.q_y" r="10"/> -->
+						<circle class='test-cr' :cx="D_LinkItem.bg_width/2" :cy="D_LinkItem.bg_height/2" r="5"/>
+						<circle class='test-cr' :cx="0" :cy="0" r="5"/>
+						<circle class='test-cr' :cx="D_LinkItem.bg_width" :cy="0" r="5"/>
+						<circle class='test-cr' :cx="0" :cy="D_LinkItem.bg_height" r="5"/>
+						<circle class='test-cr' :cx="D_LinkItem.bg_width" :cy="D_LinkItem.bg_height" r="5"/>
+						
+						
+						<path stroke="transparent" stroke-width="2" fill="none" 
+						v-if="D_LinkItem.type=='t-b-pair'"
+						style='z-index:9999;'
+						:id="'path_'+S_uuid"
+						marker-end="url(#arrow)"
+						:d="'M'+D_LinkItem.start_x+','+D_LinkItem.start_y+
+						    ' Q'+D_LinkItem.q_x+' '+D_LinkItem.q_y+','+D_LinkItem.mid_x+' '+D_LinkItem.mid_y+
+							' T'+D_LinkItem.end_x+','+D_LinkItem.end_y
+						" 
+						class='stoke'
+						></path>
+						<path stroke="transparent" stroke-width="2" fill="none" 
+						v-else-if="D_LinkItem.type=='r-l-pair'"
+						style='z-index:9999;'
+						:id="'path_'+S_uuid"
+						marker-end="url(#arrow)"
+						:d="'M'+D_LinkItem.start_x+','+D_LinkItem.start_y+
+						    ' Q'+D_LinkItem.q_x+' '+D_LinkItem.q_y+','+D_LinkItem.mid_x+' '+D_LinkItem.mid_y+
+							' T'+D_LinkItem.end_x+','+D_LinkItem.end_y
+							" 
+						class='stoke'
+						></path>
+						<path stroke="transparent" stroke-width="2" fill="none" 
+						v-else-if="D_LinkItem.type=='face-side-pair'"
+						style='z-index:9999;'
+						:id="'path_'+S_uuid"
+						marker-end="url(#arrow)"
+						:d="'M'+D_LinkItem.start_x+','+D_LinkItem.start_y+
+						    ' V'+D_LinkItem.mid_y+
+							' Q'+D_LinkItem.q_x+' '+D_LinkItem.q_y+','+D_LinkItem.mid_x_2+' '+D_LinkItem.mid_y_2+
+							' H'+D_LinkItem.end_x
+							" 
+						class='stoke'
+						></path>
+						<path stroke="transparent" stroke-width="2" fill="none" 
+						v-else-if="D_LinkItem.type=='side-face-pair'"
+						style='z-index:9999;'
+						:id="'path_'+S_uuid"
+						marker-end="url(#arrow)"
+						:d="'M'+D_LinkItem.start_x+','+D_LinkItem.start_y+
+						    ' H'+D_LinkItem.mid_x+
+							' Q'+D_LinkItem.q_x+' '+D_LinkItem.q_y+','+D_LinkItem.mid_x_2+' '+D_LinkItem.mid_y_2+
+							' V'+D_LinkItem.end_y
+							" 
+						class='stoke'
+						></path>
+ 						<path stroke="transparent" stroke-width="2" fill="none" 
+						v-else-if="D_LinkItem.type=='same-t'"
+						style='z-index:9999;'
+						:id="'path_'+S_uuid"
+						marker-end="url(#arrow)"
+						:d="'M'+D_LinkItem.start_x+','+D_LinkItem.start_y+
+						    ' V'+D_LinkItem.mid_y+
+							' Q'+D_LinkItem.q_x+' '+D_LinkItem.q_y+','+D_LinkItem.mid_x_2+' '+D_LinkItem.mid_y_2+
+							' H'+D_LinkItem.mid_x_3+
+							' Q'+D_LinkItem.q_x_2+' '+D_LinkItem.q_y_2+','+D_LinkItem.mid_x_4+' '+D_LinkItem.mid_y_4+
+							' V'+D_LinkItem.end_y
+							" 
+						class='stoke'
+						></path>
+ 						<path stroke="transparent" stroke-width="2" fill="none" 
+						v-else-if="D_LinkItem.type=='same-b'"
+						style='z-index:9999;'
+						:id="'path_'+S_uuid"
+						marker-end="url(#arrow)"
+						:d="'M'+D_LinkItem.start_x+','+D_LinkItem.start_y+
+						    ' V'+D_LinkItem.mid_y+
+							' Q'+D_LinkItem.q_x+' '+D_LinkItem.q_y+','+D_LinkItem.mid_x_2+' '+D_LinkItem.mid_y_2+
+							' H'+D_LinkItem.mid_x_3+
+							' Q'+D_LinkItem.q_x_2+' '+D_LinkItem.q_y_2+','+D_LinkItem.mid_x_4+' '+D_LinkItem.mid_y_4+
+							' V'+D_LinkItem.end_y
+							" 
+						class='stoke'
+						></path>
+ 						<path stroke="transparent" stroke-width="2" fill="none" 
+						v-else-if="D_LinkItem.type=='same-r'"
+						style='z-index:9999;'
+						:id="'path_'+S_uuid"
+						marker-end="url(#arrow)"
+						:d="'M'+D_LinkItem.start_x+','+D_LinkItem.start_y+
+						    ' H'+D_LinkItem.mid_x+
+							' Q'+D_LinkItem.q_x+' '+D_LinkItem.q_y+','+D_LinkItem.mid_x_2+' '+D_LinkItem.mid_y_2+
+							' V'+D_LinkItem.mid_y_3+
+							' Q'+D_LinkItem.q_x_2+' '+D_LinkItem.q_y_2+','+D_LinkItem.mid_x_4+' '+D_LinkItem.mid_y_4+
+							' H'+D_LinkItem.end_x
+							" 
+						class='stoke'
+						></path>
+ 						<path stroke="transparent" stroke-width="2" fill="none" 
+						v-else-if="D_LinkItem.type=='same-l'"
+						style='z-index:9999;'
+						:id="'path_'+S_uuid"
+						marker-end="url(#arrow)"
+						:d="'M'+D_LinkItem.start_x+','+D_LinkItem.start_y+
+						    ' H'+D_LinkItem.mid_x+
+							' Q'+D_LinkItem.q_x+' '+D_LinkItem.q_y+','+D_LinkItem.mid_x_2+' '+D_LinkItem.mid_y_2+
+							' V'+D_LinkItem.mid_y_3+
+							' Q'+D_LinkItem.q_x_2+' '+D_LinkItem.q_y_2+','+D_LinkItem.mid_x_4+' '+D_LinkItem.mid_y_4+
+							' H'+D_LinkItem.end_x
+							" 
+						class='stoke'
+						></path>
+
+						<path stroke="transparent" stroke-width="4" fill="none" 
+						:id="'path_back_'+S_uuid"
+						marker-end="url(#arrow)"
+						:d="'M'+D_LinkItem.start_x+','+D_LinkItem.start_y+
+						    'L'+D_LinkItem.end_x+','+D_LinkItem.end_y" 
+						class='stoke-background'
+						@contextmenu.prevent.stop="removePath(S_uuid)"
+						></path>
+					</g>
+				</svg>
+				<svg id='test-line' v-if="testLine.show"  class='link-stoke-svg-background' 
+				:style="'position: absolute;left:'+((testLine.x_1)-Math.abs(testLine.x_2-testLine.x_1)-5)+'px;'+
+						'top:'+((testLine.y_1)-Math.abs(testLine.y_2-testLine.y_1)-5)+'px;'+
+						'height:'+(2*Math.abs(testLine.y_2-testLine.y_1)+10)+'px;'+
+						'width:'+(2*Math.abs(testLine.x_2-testLine.x_1)+10)+'px;'">
+					<defs> 
+						<marker id="arrow-test" markerWidth="10" markerHeight="10" refx="5" refy="3" orient="auto" markerUnits="strokeWidth" viewBox="0 0 20 20"> <path d="M0,0 L0,6 L9,3 z" fill="#f00" /> 
+						</marker> 
+					</defs>
+					<g>
+						<path stroke="transparent" stroke-width="2" fill="none" 
+						marker-end="url(#arrow-test)"
+						:d="'M'+(Math.abs(testLine.x_2-testLine.x_1)+6)+','+(Math.abs(testLine.y_2-testLine.y_1)+6)+
+						    'L'+(Math.abs(testLine.x_2-testLine.x_1)+(testLine.x_2-testLine.x_1)+6)+','+
+							(Math.abs(testLine.y_2-testLine.y_1)+(testLine.y_2-testLine.y_1)+6)" 
+						class='stoke'
+						></path>
+					</g>
+				</svg>
+			</div>
+		</div>
+	</div>
+	
+</body>
+<script src="./flowChart.js"></script>
+</html> 

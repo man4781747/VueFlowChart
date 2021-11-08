@@ -1,0 +1,115 @@
+body {
+	background-color: #ccc;
+}
+
+#draw-ground {
+	top: 20px;
+	width: 80vw;
+	height: 80vh;
+	background-color: #eee;
+	overflow: hidden;
+	/* background: linear-gradient(to right,#fff 1px,transparent 1px), */
+                /* linear-gradient(to bottom,#fff 1px,transparent 1px); */
+    /* background-repeat: repeat;/* 默认为 repeat */
+    /* background-size: 10px 10px; */
+
+}
+
+#draw-ground-canvas {
+	width: 100%;
+	height: 100%;
+	position: relative;
+	background: linear-gradient(to right,#fff 1px,transparent 1px),
+                linear-gradient(to bottom,#fff 1px,transparent 1px);
+    background-repeat: repeat;/* 默认为 repeat */
+    background-size: 10px 10px;
+}
+
+#test-line {
+	z-index: 1;
+	/* background-color: #f0f; */
+}
+
+#tool-box {
+	z-index: 999;
+	position: fixed;
+	top: 10px;
+	left: 10px;
+}
+
+.svg-canvas-task-background {
+	position: absolute;
+	z-index: 10;
+}
+
+.svg-canvas-task {
+	position: relative;
+	background-color: #ddd;
+	padding: 1rem;
+	border: 2px #333 solid;
+	-webkit-user-select:none;
+	-moz-user-select:none;
+	-o-user-select:none;
+	user-select:none;
+}
+
+
+
+.svg-canvas-task-connect-point {
+	width: 8px;
+	height: 8px;
+	border: 1px #333 solid;
+	position: absolute;
+	border-radius: 8px;
+	background-color: #ddd;
+}
+
+.svg-canvas-task-connect-point:hover {
+	background-color:blue;
+}
+
+.link-stoke-svg-background {
+	z-index:9999999;
+	pointer-events: none;
+}
+
+.stoke {
+	stroke: red;
+	pointer-events: auto;
+}
+
+
+.stoke-background {
+	pointer-events: auto;
+}
+
+.stoke-background:hover {
+	stroke: red;
+}
+
+.l-point {
+    left: -6px;
+    top: calc(50% - 6px);
+}
+
+.r-point {
+    position: absolute;
+    right: -6px;
+    top: calc(50% - 6px);
+}
+
+.t-point {
+    position: absolute;
+    left: calc(50% - 6px);
+    top: -6px;
+}
+
+.b-point {
+    position: absolute;
+    left: calc(50% - 6px);
+    bottom: -6px;
+}
+
+.task-entry-point {
+	background-color: #f0f;
+}
