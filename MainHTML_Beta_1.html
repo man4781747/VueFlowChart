@@ -24,7 +24,12 @@
 			>
 			<div 
 			id='draw-ground-canvas' 
-			:style="'transform: scale('+canvasScale+') translate('+canvasTranslateX+'px, '+canvasTranslateY+'px);'"
+			:style="
+			'transform: scale('+canvasScale+') translate('+canvasTranslateX+'px, '+canvasTranslateY+'px);'+
+			'width:'+DrawCanvas.width+'px;'+
+			'height:'+DrawCanvas.height+'px;'+
+			'border:'+DrawCanvas.border+'px #333 solid;'
+			"
 			>
 				<div class='svg-canvas-task-background' v-for="(item,key,index) in D_taskList_computed"
 					:id="'task_'+key"
@@ -79,25 +84,15 @@
 						</marker> 
 					</defs>
 					<g>
-						<path stroke="transparent" stroke-width="2" fill="none" 
-						:id="'path_'+S_uuid"
-						marker-end="url(#arrow)"
-						:d="'M'+D_LinkItem.start_x+','+D_LinkItem.start_y+
-						    'L'+D_LinkItem.end_x+','+D_LinkItem.end_y" 
-						class='stoke'
-						></path>
-						
-						<!-- <circle :cx="D_LinkItem.start_x" :cy="D_LinkItem.start_y" r="10"/> -->
-						<!-- <circle :cx="D_LinkItem.mid_x" :cy="D_LinkItem.mid_y" r="10"/> -->
-						<!-- <circle :cx="D_LinkItem.q_x" :cy="D_LinkItem.q_y" r="10"/> -->
-						<circle class='test-cr' :cx="D_LinkItem.bg_width/2" :cy="D_LinkItem.bg_height/2" r="5"/>
+						<!-- <circle class='test-cr' :cx="D_LinkItem.bg_width/2" :cy="D_LinkItem.bg_height/2" r="5"/>
 						<circle class='test-cr' :cx="0" :cy="0" r="5"/>
 						<circle class='test-cr' :cx="D_LinkItem.bg_width" :cy="0" r="5"/>
 						<circle class='test-cr' :cx="0" :cy="D_LinkItem.bg_height" r="5"/>
 						<circle class='test-cr' :cx="D_LinkItem.bg_width" :cy="D_LinkItem.bg_height" r="5"/>
+						 -->
 						
-						
-						<path stroke="transparent" stroke-width="2" fill="none" 
+						<path stroke="transparent" stroke-width="2" fill="none"
+						@contextmenu.prevent.stop="removePath(S_uuid)" 
 						v-if="D_LinkItem.type=='t-b-pair'"
 						style='z-index:9999;'
 						:id="'path_'+S_uuid"
@@ -109,6 +104,7 @@
 						class='stoke'
 						></path>
 						<path stroke="transparent" stroke-width="2" fill="none" 
+						@contextmenu.prevent.stop="removePath(S_uuid)"
 						v-else-if="D_LinkItem.type=='r-l-pair'"
 						style='z-index:9999;'
 						:id="'path_'+S_uuid"
@@ -120,6 +116,7 @@
 						class='stoke'
 						></path>
 						<path stroke="transparent" stroke-width="2" fill="none" 
+						@contextmenu.prevent.stop="removePath(S_uuid)"
 						v-else-if="D_LinkItem.type=='face-side-pair'"
 						style='z-index:9999;'
 						:id="'path_'+S_uuid"
@@ -132,6 +129,7 @@
 						class='stoke'
 						></path>
 						<path stroke="transparent" stroke-width="2" fill="none" 
+						@contextmenu.prevent.stop="removePath(S_uuid)"
 						v-else-if="D_LinkItem.type=='side-face-pair'"
 						style='z-index:9999;'
 						:id="'path_'+S_uuid"
@@ -144,6 +142,7 @@
 						class='stoke'
 						></path>
  						<path stroke="transparent" stroke-width="2" fill="none" 
+						@contextmenu.prevent.stop="removePath(S_uuid)"
 						v-else-if="D_LinkItem.type=='same-t'"
 						style='z-index:9999;'
 						:id="'path_'+S_uuid"
@@ -158,6 +157,7 @@
 						class='stoke'
 						></path>
  						<path stroke="transparent" stroke-width="2" fill="none" 
+						@contextmenu.prevent.stop="removePath(S_uuid)"
 						v-else-if="D_LinkItem.type=='same-b'"
 						style='z-index:9999;'
 						:id="'path_'+S_uuid"
@@ -172,6 +172,7 @@
 						class='stoke'
 						></path>
  						<path stroke="transparent" stroke-width="2" fill="none" 
+						@contextmenu.prevent.stop="removePath(S_uuid)"
 						v-else-if="D_LinkItem.type=='same-r'"
 						style='z-index:9999;'
 						:id="'path_'+S_uuid"
@@ -186,6 +187,7 @@
 						class='stoke'
 						></path>
  						<path stroke="transparent" stroke-width="2" fill="none" 
+						@contextmenu.prevent.stop="removePath(S_uuid)"
 						v-else-if="D_LinkItem.type=='same-l'"
 						style='z-index:9999;'
 						:id="'path_'+S_uuid"
@@ -200,6 +202,14 @@
 						class='stoke'
 						></path>
 
+
+						<!-- <path stroke="transparent" stroke-width="2" fill="none" 
+						:id="'path_'+S_uuid"
+						marker-end="url(#arrow)"
+						:d="'M'+D_LinkItem.start_x+','+D_LinkItem.start_y+
+						    'L'+D_LinkItem.end_x+','+D_LinkItem.end_y" 
+						class='stoke'
+						></path>
 						<path stroke="transparent" stroke-width="4" fill="none" 
 						:id="'path_back_'+S_uuid"
 						marker-end="url(#arrow)"
@@ -207,7 +217,7 @@
 						    'L'+D_LinkItem.end_x+','+D_LinkItem.end_y" 
 						class='stoke-background'
 						@contextmenu.prevent.stop="removePath(S_uuid)"
-						></path>
+						></path> -->
 					</g>
 				</svg>
 				<svg id='test-line' v-if="testLine.show"  class='link-stoke-svg-background' 

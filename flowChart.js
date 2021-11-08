@@ -31,6 +31,12 @@ var app = new Vue({
 	data: {
 		svg_path_padding: 50,
 		
+		DrawCanvas: {
+			width: 2000,
+			height: 2000,
+			border: 3,
+		},
+
 		BackgroundCanvasContextMenuInfo: {
 			open: false,
 			x: 0,
@@ -145,6 +151,14 @@ var app = new Vue({
 				'y': canvasEle.offsetTop,
 			}
 		},
+		D_canvasSize(){
+			canvasEle = document.getElementById(this.canvasID)
+			return {
+				'width': canvasEle.parentNode.clientWidth,
+				'height': canvasEle.parentNode.clientHeight,
+			}
+		},
+		
 	},
 	
 	methods: {
@@ -445,11 +459,26 @@ var app = new Vue({
 			document.onmousemove = (e)=>{
 				
 				// 滑鼠位置(絕對位置，不受縮放影響)
-				
+				// console.log(taskKey)
 				
                 let left = (e.clientX - disX)/this.canvasScale ;    
                 let top = (e.clientY - disY)/this.canvasScale;
-				// console.log(taskIte)
+
+				var canvasEle = document.getElementById('task_'+taskKey)
+
+				if (left < 0){
+					left = 0
+				} else if (left > this.DrawCanvas.width-canvasEle.clientWidth){
+					left = this.DrawCanvas.width-canvasEle.clientWidth
+				}				
+				
+				if (top < 0){
+					top = 0
+				} else if (top > this.DrawCanvas.height-canvasEle.clientHeight){
+					top = this.DrawCanvas.height-canvasEle.clientHeight
+				}
+
+
 				taskItem.x = left
 				taskItem.y = top
 				app.updatePathDraw(taskKey)
@@ -473,11 +502,17 @@ var app = new Vue({
                 //用鼠标的位置减去鼠标相对元素的位置，得到元素的位置
                 let left = e.clientX - disX ;    
                 let top = e.clientY - disY;
-                //绑定元素位置到positionX和positionY上面
-                // this.positionX = top;
-                // this.positionY = left;
-				endX = left
-				endY = top
+				if (left > 0){
+					left = 0
+				} else if (left < -this.DrawCanvas.width+this.D_canvasSize.width-this.DrawCanvas.border*2){
+					left = -this.DrawCanvas.width+this.D_canvasSize.width-this.DrawCanvas.border*2
+				}				
+				// console.log(top)
+				if (top > 0){
+					top = 0
+				} else if (top < -this.DrawCanvas.height+this.D_canvasSize.height-this.DrawCanvas.border*2){
+					top = -this.DrawCanvas.height+this.D_canvasSize.height-this.DrawCanvas.border*2
+				}
 				app.canvasTranslateX = left
 				app.canvasTranslateY = top
                 // console.log(left + 'px')
@@ -509,8 +544,8 @@ var app = new Vue({
 			endPointXOnCanvas   = Math.abs(D_end.x-D_start.x)+(D_end.x-D_start.x) + this.svg_path_padding
 			endPointYOnCanvas   = Math.abs(D_end.y-D_start.y)+(D_end.y-D_start.y) + this.svg_path_padding
 			D_linkInfo = {
-				'bg_left': (D_start.x)-Math.abs(D_end.x-D_start.x)-this.svg_path_padding- this.D_canvasOffset.x + 5,
-				'bg_top': (D_start.y)-Math.abs(D_end.y-D_start.y)-this.svg_path_padding - this.D_canvasOffset.y + 5,
+				'bg_left': (D_start.x)-Math.abs(D_end.x-D_start.x)-this.svg_path_padding- this.D_canvasOffset.x - this.DrawCanvas.border + 4,
+				'bg_top': (D_start.y)-Math.abs(D_end.y-D_start.y)-this.svg_path_padding - this.D_canvasOffset.y - this.DrawCanvas.border + 4,
 				'bg_width': 2*Math.abs(D_end.x-D_start.x)+this.svg_path_padding*2,
 				'bg_height': 2*Math.abs(D_end.y-D_start.y)+this.svg_path_padding*2,
 				
