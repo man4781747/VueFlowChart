@@ -32,8 +32,8 @@ var app = new Vue({
 		svg_path_padding: 50,
 		
 		DrawCanvas: {
-			width: 2000,
-			height: 2000,
+			width: 1500,
+			height: 1000,
 			border: 3,
 		},
 
@@ -88,7 +88,7 @@ var app = new Vue({
 		},
 		D_pathList:{},		
 		S_pathChose:"",
-		
+		D_hoverList: {},
 	},
 	
 	computed: {
@@ -158,7 +158,7 @@ var app = new Vue({
 				'height': canvasEle.parentNode.clientHeight,
 			}
 		},
-		
+
 	},
 	
 	methods: {
@@ -696,6 +696,25 @@ var app = new Vue({
 			
 			
 			return D_linkInfo
+		},
+
+		taskItemOverIn(S_taskUuid){
+			var D_hoverList = {}
+			D_hoverList[S_taskUuid] = 'main'
+			if (this.D_pathList_ByItem[S_taskUuid] != undefined){
+				for (S_pathUuid of Object.keys(this.D_pathList_ByItem[S_taskUuid])){
+					S_fromTask = this.D_pathList[S_pathUuid].from.slice(5,-2)
+					S_toTask = this.D_pathList[S_pathUuid].to.slice(5,-2)
+					if (S_fromTask == S_taskUuid){
+						D_hoverList[S_toTask] = 'after_task'
+						D_hoverList[S_pathUuid] = 'out_path'
+					} else {
+						D_hoverList[S_fromTask] = 'after_task'
+						D_hoverList[S_pathUuid] = 'in_path'
+					}
+				}
+			}
+			this.D_hoverList = D_hoverList
 		},
 	},
 	

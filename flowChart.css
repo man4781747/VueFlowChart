@@ -76,7 +76,8 @@ body {
 	pointer-events: auto;
 }
 
-.stoke:hover {
+.stoke:hover,
+.hover-path {
 	stroke-width: 4;
 }
 
@@ -115,4 +116,8 @@ body {
 
 .task-entry-point {
 	background-color: #f0f;
+}
+
+.hover-task {
+	background-color: #ff0;
 }

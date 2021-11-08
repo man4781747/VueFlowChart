@@ -20,7 +20,8 @@
 			style='margin: 50px 20px;'
 			@mousedown.left="moveBackgroundCanvas" 
 			@mousewheel="mousewheelBackgroundCanvas"
-			@contextmenu.prevent.stop="moveRigthUpOnBackgroundCanvas" 
+			@mousedown.right="moveBackgroundCanvas" 
+			@contextmenu.prevent="" 
 			>
 			<div 
 			id='draw-ground-canvas' 
@@ -36,9 +37,11 @@
 					:style="'top:'+item.y+'px;left:'+item.x+'px;'"
 					@mousedown.left.stop="moveTaskItem($event, item, key)"
 					@contextmenu.prevent.stop="delTaskItem(key)"
+					@mouseover="taskItemOverIn(key)"
+					@mouseout="D_hoverList = {}"
 				>
 					<div class='svg-canvas-task'
-						:class="D_getTaskProcessList[key].entryPoint==true?'task-entry-point':''"
+						:class="D_hoverList[key]!=undefined?'hover-task':D_getTaskProcessList[key].entryPoint==true?'task-entry-point':''"
 					>
 						<div style="display:grid;">
 							<div><label>流程名稱</label><input v-model="item.taskName" placeholder="請輸入"></div>
@@ -94,7 +97,6 @@
 						<path stroke="transparent" stroke-width="2" fill="none"
 						@contextmenu.prevent.stop="removePath(S_uuid)" 
 						v-if="D_LinkItem.type=='t-b-pair'"
-						style='z-index:9999;'
 						:id="'path_'+S_uuid"
 						marker-end="url(#arrow)"
 						:d="'M'+D_LinkItem.start_x+','+D_LinkItem.start_y+
@@ -102,11 +104,11 @@
 							' T'+D_LinkItem.end_x+','+D_LinkItem.end_y
 						" 
 						class='stoke'
+						:class="D_hoverList[S_uuid]!=undefined?'hover-path':''"
 						></path>
 						<path stroke="transparent" stroke-width="2" fill="none" 
 						@contextmenu.prevent.stop="removePath(S_uuid)"
 						v-else-if="D_LinkItem.type=='r-l-pair'"
-						style='z-index:9999;'
 						:id="'path_'+S_uuid"
 						marker-end="url(#arrow)"
 						:d="'M'+D_LinkItem.start_x+','+D_LinkItem.start_y+
@@ -114,11 +116,11 @@
 							' T'+D_LinkItem.end_x+','+D_LinkItem.end_y
 							" 
 						class='stoke'
+						:class="D_hoverList[S_uuid]!=undefined?'hover-path':''"
 						></path>
 						<path stroke="transparent" stroke-width="2" fill="none" 
 						@contextmenu.prevent.stop="removePath(S_uuid)"
 						v-else-if="D_LinkItem.type=='face-side-pair'"
-						style='z-index:9999;'
 						:id="'path_'+S_uuid"
 						marker-end="url(#arrow)"
 						:d="'M'+D_LinkItem.start_x+','+D_LinkItem.start_y+
@@ -127,11 +129,11 @@
 							' H'+D_LinkItem.end_x
 							" 
 						class='stoke'
+						:class="D_hoverList[S_uuid]!=undefined?'hover-path':''"
 						></path>
 						<path stroke="transparent" stroke-width="2" fill="none" 
 						@contextmenu.prevent.stop="removePath(S_uuid)"
 						v-else-if="D_LinkItem.type=='side-face-pair'"
-						style='z-index:9999;'
 						:id="'path_'+S_uuid"
 						marker-end="url(#arrow)"
 						:d="'M'+D_LinkItem.start_x+','+D_LinkItem.start_y+
@@ -140,11 +142,11 @@
 							' V'+D_LinkItem.end_y
 							" 
 						class='stoke'
+						:class="D_hoverList[S_uuid]!=undefined?'hover-path':''"
 						></path>
  						<path stroke="transparent" stroke-width="2" fill="none" 
 						@contextmenu.prevent.stop="removePath(S_uuid)"
 						v-else-if="D_LinkItem.type=='same-t'"
-						style='z-index:9999;'
 						:id="'path_'+S_uuid"
 						marker-end="url(#arrow)"
 						:d="'M'+D_LinkItem.start_x+','+D_LinkItem.start_y+
@@ -155,11 +157,11 @@
 							' V'+D_LinkItem.end_y
 							" 
 						class='stoke'
+						:class="D_hoverList[S_uuid]!=undefined?'hover-path':''"
 						></path>
  						<path stroke="transparent" stroke-width="2" fill="none" 
 						@contextmenu.prevent.stop="removePath(S_uuid)"
 						v-else-if="D_LinkItem.type=='same-b'"
-						style='z-index:9999;'
 						:id="'path_'+S_uuid"
 						marker-end="url(#arrow)"
 						:d="'M'+D_LinkItem.start_x+','+D_LinkItem.start_y+
@@ -170,11 +172,11 @@
 							' V'+D_LinkItem.end_y
 							" 
 						class='stoke'
+						:class="D_hoverList[S_uuid]!=undefined?'hover-path':''"
 						></path>
  						<path stroke="transparent" stroke-width="2" fill="none" 
 						@contextmenu.prevent.stop="removePath(S_uuid)"
 						v-else-if="D_LinkItem.type=='same-r'"
-						style='z-index:9999;'
 						:id="'path_'+S_uuid"
 						marker-end="url(#arrow)"
 						:d="'M'+D_LinkItem.start_x+','+D_LinkItem.start_y+
@@ -185,11 +187,11 @@
 							' H'+D_LinkItem.end_x
 							" 
 						class='stoke'
+						:class="D_hoverList[S_uuid]!=undefined?'hover-path':''"
 						></path>
  						<path stroke="transparent" stroke-width="2" fill="none" 
 						@contextmenu.prevent.stop="removePath(S_uuid)"
 						v-else-if="D_LinkItem.type=='same-l'"
-						style='z-index:9999;'
 						:id="'path_'+S_uuid"
 						marker-end="url(#arrow)"
 						:d="'M'+D_LinkItem.start_x+','+D_LinkItem.start_y+
@@ -199,6 +201,7 @@
 							' Q'+D_LinkItem.q_x_2+' '+D_LinkItem.q_y_2+','+D_LinkItem.mid_x_4+' '+D_LinkItem.mid_y_4+
 							' H'+D_LinkItem.end_x
 							" 
+						:class="D_hoverList[S_uuid]!=undefined?'hover-path':''"
 						class='stoke'
 						></path>
 
