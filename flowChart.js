@@ -43,8 +43,12 @@ var app = new Vue({
 			y: 0,
 		},
 		
+		alertList : {},
+
 		canvasID : "draw-ground-canvas",
 		
+		taskCanvasMaskOpen: false,
+
 		canvasTranslateX: 0,
 		canvasTranslateY: 0,
 		canvasScale: 1,
@@ -60,6 +64,7 @@ var app = new Vue({
 					'r':{},
 					'l':{},
 				},
+				'trigger_rule':'all_done',
 			},
 			'f6e2fa5d-295b-4cf5-99f5-fb99be1f4dc7': {
 				'taskName':'end',
@@ -72,6 +77,7 @@ var app = new Vue({
 					'r':{},
 					'l':{},
 				},
+				'trigger_rule':'all_done',
 			},
 
 		},
@@ -147,8 +153,8 @@ var app = new Vue({
 		D_canvasOffset(){
 			canvasEle = document.getElementById(this.canvasID)
 			return {
-				'x': canvasEle.offsetLeft,
-				'y': canvasEle.offsetTop,
+				'x': canvasEle.parentNode.offsetLeft,
+				'y': canvasEle.parentNode.offsetTop,
 			}
 		},
 		D_canvasSize(){
@@ -162,6 +168,19 @@ var app = new Vue({
 	},
 	
 	methods: {
+		addNewErrorAlert(S_content){
+			var S_uuid = _uuid()
+			Vue.set(this.alertList,S_uuid,
+					{
+						'content': S_content
+					}
+				)
+
+			setTimeout(function() {
+				Vue.delete(app.alertList,S_uuid)
+			}, 4000);
+		},
+
 		updatePathDraw(S_taskChose){
 			return null
 			if (this.D_taskList[S_taskChose] == undefined){
@@ -199,6 +218,7 @@ var app = new Vue({
 						'r':{},
 						'l':{},
 					},
+					'trigger_rule':'all_done', 
 				},
 			)
 		},
@@ -293,12 +313,14 @@ var app = new Vue({
 				// 確認連接處是否為自己
 				if (L_elePath[2].id == 'task_'+startEle){
 					console.log('self! skip!')
+					this.addNewErrorAlert('不允許自己連接自己')
 					return null
 				}
 				// 確認連接對象是否連接過了(單向)
 				for (S_posiKey of ['t','b','r','l']){
 					if (startItem['lineList'][S_posiKey][L_elePath[2].id] != undefined){
 						console.log('link exists!')
+						this.addNewErrorAlert('禁止重複連線')
 						return null
 					}
 				}
@@ -308,6 +330,7 @@ var app = new Vue({
 				Set_linkChain = this.getTaskLinkChain(new Set(),e.path[2].id.slice(5))
 				if (Set_linkChain.has(startEle)){
 					console.log('偵測到迴圈可能，取消連接!')
+					this.addNewErrorAlert('偵測到迴圈可能，取消連接')
 					return null
 				}
 				
@@ -558,11 +581,11 @@ var app = new Vue({
 				D_linkInfo['mid_x'] = (startPointXOnCanvas+endPointXOnCanvas)/2
 				D_linkInfo['mid_y'] = (startPointYOnCanvas+endPointYOnCanvas)/2
 				D_linkInfo['q_x'] = startPointXOnCanvas+(endPointXOnCanvas-startPointXOnCanvas)/2
-				D_linkInfo['q_y'] = startPointYOnCanvas
+				D_linkInfo['q_y'] = startPointYOnCanvas+(endPointYOnCanvas-startPointYOnCanvas)/8
 			} else if (S_type=='t-b-pair'){
 				D_linkInfo['mid_x'] = (startPointXOnCanvas+endPointXOnCanvas)/2
 				D_linkInfo['mid_y'] = (startPointYOnCanvas+endPointYOnCanvas)/2
-				D_linkInfo['q_x'] = startPointXOnCanvas
+				D_linkInfo['q_x'] = startPointXOnCanvas+(endPointXOnCanvas-startPointXOnCanvas)/8
 				D_linkInfo['q_y'] = startPointYOnCanvas+(endPointYOnCanvas-startPointYOnCanvas)/2
 			} else if (S_type=='face-side-pair'){
 				D_linkInfo['mid_x'] = startPointXOnCanvas
@@ -699,6 +722,7 @@ var app = new Vue({
 		},
 
 		taskItemOverIn(S_taskUuid){
+			this.taskCanvasMaskOpen = true
 			var D_hoverList = {}
 			D_hoverList[S_taskUuid] = 'main'
 			if (this.D_pathList_ByItem[S_taskUuid] != undefined){

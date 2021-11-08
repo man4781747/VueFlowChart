@@ -7,8 +7,10 @@
 	<!-- 導入Vue -->
 	<script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
 	<link rel="stylesheet" href="./flowChart.css" />
-
-
+	<link href="./CSS/fontawesome-free-5.15.4-web/css/fontawesome.css" rel="stylesheet">
+	<link href="./CSS/fontawesome-free-5.15.4-web/css/brands.css" rel="stylesheet">
+	<link href="./CSS/fontawesome-free-5.15.4-web/css/solid.css" rel="stylesheet">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
 </head>
 <body>
 	<div id="app">
@@ -23,6 +25,15 @@
 			@mousedown.right="moveBackgroundCanvas" 
 			@contextmenu.prevent="" 
 			>
+			<div id='alert-windows-list'>
+				<div v-for="(alertItem,alertUuid, index) in alertList"
+					class='alert-window animate__animated  animate__bounceIn'
+				>
+					<i class="fas fa-times-circle"></i>
+					<div class='alert-content'>{{alertItem.content}}</div>
+				</div>
+			</div>
+
 			<div 
 			id='draw-ground-canvas' 
 			:style="
@@ -32,20 +43,61 @@
 			'border:'+DrawCanvas.border+'px #333 solid;'
 			"
 			>
+			
+
 				<div class='svg-canvas-task-background' v-for="(item,key,index) in D_taskList_computed"
 					:id="'task_'+key"
 					:style="'top:'+item.y+'px;left:'+item.x+'px;'"
-					@mousedown.left.stop="moveTaskItem($event, item, key)"
-					@contextmenu.prevent.stop="delTaskItem(key)"
+					:class="D_hoverList[key]!=undefined?'over-mask':''"
 					@mouseover="taskItemOverIn(key)"
 					@mouseout="D_hoverList = {}"
 				>
-					<div class='svg-canvas-task'
-						:class="D_hoverList[key]!=undefined?'hover-task':D_getTaskProcessList[key].entryPoint==true?'task-entry-point':''"
-					>
-						<div style="display:grid;">
-							<div><label>流程名稱</label><input v-model="item.taskName" placeholder="請輸入"></div>
-							<div><label>.py檔案</label><input v-model="item.taskName"></div>
+					<div class='svg-canvas-task'>
+						<div class='task-card'
+							:class="D_hoverList[key]!=undefined?'task-card-hover':D_getTaskProcessList[key].entryPoint==true?'task-card-entry-point':'task-card-noactive'"
+						>
+							<div class='task-card-header mouse-move'
+							@mousedown.left.stop="moveTaskItem($event, item, key)"
+							>
+								<div class='task-card-header-label '>
+									<label class='mouse-move'>Title</label>
+								</div>
+								<div class='task-card-header-menu'>
+									<i class="fas fa-times btn"
+									@click.stop="delTaskItem(key)"
+									></i>
+								</div>
+							</div>
+							<div class='task-card-body'>
+								<div class='task-input-item'> 
+									<label class='task-input-item-label'>流程名稱:</label>
+									<input class='task-input-item-input' v-model="item.taskName" placeholder="請輸入">
+								</div>
+								<div class='task-input-item'>
+									<label class='task-input-item-label'>.py檔案:</label>
+									<input class='task-input-item-input' v-model="item.taskName">
+
+								</div>
+								<div class='task-input-item'>
+									<label class='task-input-item-label'>觸發邏輯:</label>
+									<!-- <div class='task-input-item-input'> -->
+										<select 
+										v-if="D_getTaskProcessList[key].entryPoint==false"
+										class='task-input-item-input' v-model="D_taskList[key].trigger_rule">
+											<option value='all_done'>上游全完成</option>
+											<option value='all_success'>上游全成功</option>
+											<option value='all_failed'>上游全失敗</option>
+											<option value='one_failed'>上游只要一個失敗</option>
+											<option value='one_success'>上游只要一個成功</option>
+											<option value='none_failed'>上游全為成功或跳過</option>
+											<option value='none_skipped'>上游全不為跳過</option>
+										</select>
+										<input v-else class='task-input-item-input' placeholder="開頭流程" disabled >
+									<!-- </div> -->
+								</div>
+							</div>
+							<div class='task-card-footer'>
+							</div>
 						</div>
 						
 						<div 
@@ -69,12 +121,12 @@
 						class='svg-canvas-task-connect-point b-point'
 							@mousedown.left.stop="clickPointerOnTaskItem($event, item, key, 'b')"
 						></div>
-						
 					</div>
 				</div>
 
 				<svg v-for="(D_LinkItem,S_uuid, index) in D_pathList"
 					class='link-stoke-svg-background'
+					:class="D_hoverList[S_uuid]!=undefined?'hover-path':''"
 					:id="'link_'+S_uuid"
 					:key='S_uuid'
 					:style="'position: absolute;left:'+D_LinkItem.bg_left+'px;'+
@@ -223,6 +275,7 @@
 						></path> -->
 					</g>
 				</svg>
+
 				<svg id='test-line' v-if="testLine.show"  class='link-stoke-svg-background' 
 				:style="'position: absolute;left:'+((testLine.x_1)-Math.abs(testLine.x_2-testLine.x_1)-5)+'px;'+
 						'top:'+((testLine.y_1)-Math.abs(testLine.y_2-testLine.y_1)-5)+'px;'+
@@ -242,6 +295,8 @@
 						></path>
 					</g>
 				</svg>
+
+				<div id='task-canvas-mask'></div>
 			</div>
 		</div>
 	</div>
