@@ -157,6 +157,7 @@ var app = new Vue({
 				'y': canvasEle.parentNode.offsetTop,
 			}
 		},
+
 		D_canvasSize(){
 			canvasEle = document.getElementById(this.canvasID)
 			return {
@@ -165,6 +166,9 @@ var app = new Vue({
 			}
 		},
 
+		D_settingJson(){
+			return this.D_taskList
+		},
 	},
 	
 	methods: {
@@ -309,136 +313,150 @@ var app = new Vue({
 				if (L_elePath[0].classList.toString().indexOf('svg-canvas-task-connect-point') == -1){
 					return null
 				}
-				test = e.path[2]
-				// 確認連接處是否為自己
-				if (L_elePath[2].id == 'task_'+startEle){
-					console.log('self! skip!')
-					this.addNewErrorAlert('不允許自己連接自己')
-					return null
-				}
-				// 確認連接對象是否連接過了(單向)
-				for (S_posiKey of ['t','b','r','l']){
-					if (startItem['lineList'][S_posiKey][L_elePath[2].id] != undefined){
-						console.log('link exists!')
-						this.addNewErrorAlert('禁止重複連線')
-						return null
-					}
-				}
-				
-				// 檢查迴圈
-				
-				Set_linkChain = this.getTaskLinkChain(new Set(),e.path[2].id.slice(5))
-				if (Set_linkChain.has(startEle)){
-					console.log('偵測到迴圈可能，取消連接!')
-					this.addNewErrorAlert('偵測到迴圈可能，取消連接')
-					return null
-				}
-				
-				S_uuid = _uuid()
-				
-				Vue.set(
-					startItem['lineList'][startItem_pos],
-					L_elePath[2].id, //連接目標的Task ID
-					{
-						'link_uuid': S_uuid,
-						'link_to': L_elePath[0].id,
-					}
-				)
-				
 
-				var S_startEleID = 'task_'+startEle+'_'+startItem_pos
-				var S_endEleID = L_elePath[0].id
-				var S_endEleID_Short = L_elePath[2].id.slice(5)
 				
-				if (app.D_pathList_ByItem[startEle] == undefined){
-					Vue.set(
-						app.D_pathList_ByItem,startEle,{}
-					)
-				}
-				if (app.D_pathList_ByItem[S_endEleID_Short] == undefined){
-					Vue.set(
-						app.D_pathList_ByItem,S_endEleID_Short,{}
-					)
-				}
-				
-				S_type = ''
-				S_linkToPosi = L_elePath[0].id.slice(-1)
-				B_linkTo_t_or_b = (['t','b'].indexOf(S_linkToPosi)!=-1)
-				
-				B_linkFrom_t_or_b = (['t','b'].indexOf(startItem_pos)!=-1)
-				
-				if (S_linkToPosi==startItem_pos){
-					console.log('同側')
-					S_type = "same-"+startItem_pos
-				} 
-				else if (B_linkTo_t_or_b == true & B_linkFrom_t_or_b == true){
-					S_type = 't-b-pair'
-				}
-				else if (B_linkTo_t_or_b == false & B_linkFrom_t_or_b == false){
-					S_type = 'r-l-pair'
-				}
-				else if (B_linkFrom_t_or_b == true & B_linkTo_t_or_b == false){
-					S_type = 'face-side-pair'
-				}
-				else if (B_linkFrom_t_or_b == false & B_linkTo_t_or_b == true){
-					S_type = 'side-face-pair'
-				}
-				
-				getPosition_Start = getPosition(S_startEleID)
-				getPosition_End = getPosition(S_endEleID)
-				
-				startPointXOnCanvas = Math.abs(getPosition_End.x-getPosition_Start.x)+26
-				startPointYOnCanvas = Math.abs(getPosition_End.y-getPosition_Start.y)+26
-				
-				D_pointInfos = this.clacLinePathPoints(getPosition_Start, getPosition_End, S_type)
-				// 建立link物件資訊
-				var D_linkInfo = {
-					'from': 'task_'+startEle+'_'+startItem_pos,
-					'to': L_elePath[0].id,
-					'startPointXOnCanvas':startPointXOnCanvas,
-					'y_1':getPosition(S_startEleID).y,
-					'x_2':getPosition(S_endEleID).x,
-					'y_2':getPosition(S_endEleID).y,
-					'uuid': S_uuid,
-					'type': S_type,
-					
-				}
-				
-				D_linkInfo = {
-					...D_linkInfo,
-					...D_pointInfos
-				}
-				
-				console.log(D_linkInfo)
-				
-				Vue.set(
-					app.D_pathList,
-					S_uuid,
-					D_linkInfo
+				this.buildNewPathLink(
+					'task_'+startEle+'_'+startItem_pos,
+					L_elePath[0].id,
 				)
-				
-				// 連線圖案更新的註冊
-				Vue.set(
-					app.D_pathList_ByItem[startEle],
-					S_uuid,
-					D_linkInfo
-				)
-				Vue.set(
-					app.D_pathList_ByItem[S_endEleID_Short],
-					S_uuid,
-					D_linkInfo
-				)
-				
-				
-				app.updatePathDraw(startEle)
-				app.updatePathDraw(S_endEleID_Short)
-				
-				console.log('Link: ' + 'task_'+startEle+"_"+startItem_pos + ' -> '+L_elePath[0].id)
-				console.log(D_linkInfo)
-				
             };
 		},
 		
+		clearCanvas(){
+			this.D_taskList = {}
+			this.D_pathList_ByItem = {}
+			this.D_pathList = {}	
+			this.S_pathChose = ""
+			this.D_hoverList = {}
+		},
+
+		buildNewPathLink(S_fromEleID,S_toEleID,loadSetting=false){
+			S_fromUuid = S_fromEleID.slice(5,-2)
+			S_toUuid = S_toEleID.slice(5,-2)
+
+			// 確認連接處是否為自己
+			if (S_fromUuid == S_toUuid){
+				this.addNewErrorAlert('不允許自己連接自己')
+				return null
+			}
+			// 確認連接對象是否連接過了(單向)
+			for (S_posiKey of ['t','b','r','l']){
+				if ((this.D_taskList[S_fromUuid]['lineList'][S_posiKey]['task_'+S_toUuid] != undefined)& 
+					(loadSetting==false)
+				){
+					this.addNewErrorAlert('禁止重複連線')
+					return null
+				}
+			}
+			
+			// 檢查迴圈
+			Set_linkChain = this.getTaskLinkChain(new Set(),S_toUuid)
+			if (Set_linkChain.has(S_fromUuid)) {
+				console.log('偵測到迴圈可能，取消連接!')
+				this.addNewErrorAlert('偵測到迴圈可能，取消連接')
+				return null
+			}
+
+
+			S_pathUuid = _uuid()
+			S_startItem_pos = S_fromEleID.slice(-1)
+			Vue.set(
+				this.D_taskList[S_fromUuid]['lineList'][S_startItem_pos],
+				S_toEleID.slice(0,-2), 
+				{
+					'link_uuid': S_pathUuid,
+					'link_to': S_toEleID,
+				}
+			)
+			
+
+			var S_startEleID = S_fromEleID
+			var S_endEleID = S_toEleID
+			var S_endEleID_Short = S_toEleID.slice(5)
+			
+			if (app.D_pathList_ByItem[S_fromUuid] == undefined){
+				Vue.set(
+					app.D_pathList_ByItem,S_fromUuid,{}
+				)
+			}
+			if (app.D_pathList_ByItem[S_toUuid] == undefined){
+				Vue.set(
+					app.D_pathList_ByItem,S_toUuid,{}
+				)
+			}
+			
+			S_type = ''
+			S_linkToPosi = S_toEleID.slice(-1)
+			B_linkTo_t_or_b = (['t','b'].indexOf(S_linkToPosi)!=-1)
+			
+			B_linkFrom_t_or_b = (['t','b'].indexOf(S_startItem_pos)!=-1)
+			
+			if (S_linkToPosi==S_startItem_pos){
+				S_type = "same-"+S_startItem_pos
+			} 
+			else if (B_linkTo_t_or_b == true & B_linkFrom_t_or_b == true){
+				S_type = 't-b-pair'
+			}
+			else if (B_linkTo_t_or_b == false & B_linkFrom_t_or_b == false){
+				S_type = 'r-l-pair'
+			}
+			else if (B_linkFrom_t_or_b == true & B_linkTo_t_or_b == false){
+				S_type = 'face-side-pair'
+			}
+			else if (B_linkFrom_t_or_b == false & B_linkTo_t_or_b == true){
+				S_type = 'side-face-pair'
+			}
+			
+			getPosition_Start = getPosition(S_startEleID)
+			getPosition_End = getPosition(S_endEleID)
+			
+			startPointXOnCanvas = Math.abs(getPosition_End.x-getPosition_Start.x)+26
+			startPointYOnCanvas = Math.abs(getPosition_End.y-getPosition_Start.y)+26
+			
+			D_pointInfos = this.clacLinePathPoints(getPosition_Start, getPosition_End, S_type)
+			// 建立link物件資訊
+			var D_linkInfo = {
+				'from': S_fromEleID,
+				'to': S_toEleID,
+				'startPointXOnCanvas':startPointXOnCanvas,
+				'y_1':getPosition(S_startEleID).y,
+				'x_2':getPosition(S_endEleID).x,
+				'y_2':getPosition(S_endEleID).y,
+				'uuid': S_pathUuid,
+				'type': S_type,
+				
+			}
+			
+			D_linkInfo = {
+				...D_linkInfo,
+				...D_pointInfos
+			}
+			
+			Vue.set(
+				app.D_pathList,
+				S_pathUuid,
+				D_linkInfo
+			)
+			
+			// 連線圖案更新的註冊
+			Vue.set(
+				app.D_pathList_ByItem[S_fromUuid],
+				S_pathUuid,
+				D_linkInfo
+			)
+			Vue.set(
+				app.D_pathList_ByItem[S_toUuid],
+				S_pathUuid,
+				D_linkInfo
+			)
+			
+			// app.updatePathDraw(startEle)
+			// app.updatePathDraw(S_endEleID_Short)
+			
+			// console.log('Link: ' + 'task_'+startEle+"_"+startItem_pos + ' -> '+L_elePath[0].id)
+			// console.log(D_linkInfo)
+		},
+
 		startDrag(e, item, key, posi){
 			console.log(key, posi)
 			var startX = e.clientX - this.canvasTranslateX
@@ -740,6 +758,23 @@ var app = new Vue({
 			}
 			this.D_hoverList = D_hoverList
 		},
+
+		loadSettingJson(D_settingJson){
+			this.clearCanvas()
+			this.D_taskList = D_settingJson
+			for (S_taskFromUuid of Object.keys(this.D_taskList)){
+				for (S_posi of ['b','l','r','t']){
+					if (this.D_taskList[S_taskFromUuid]['lineList'][S_posi] == undefined){
+						continue
+					}
+					for (S_taskToEleID of Object.keys(this.D_taskList[S_taskFromUuid]['lineList'][S_posi])){
+						S_linkToEleID = this.D_taskList[S_taskFromUuid]['lineList'][S_posi][S_taskToEleID]['link_to']
+						S_linkFromEleID = 'task_'+S_taskFromUuid+'_'+S_posi
+						this.buildNewPathLink(S_linkFromEleID,S_linkToEleID, true)
+					}
+				}
+			}
+		},
 	},
 	
 	updated(){
@@ -758,6 +793,7 @@ var app = new Vue({
 			
 
 		}
+	
 	},
 	
 })
