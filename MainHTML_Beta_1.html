@@ -16,6 +16,11 @@
 	<div id="app">
 		<div id='tool-box'>
 			<button @click="addNewTaskItem()">增加Task</button>
+			<div style='background-color: aqua;'
+			draggable
+			@dragstart="startDragNewTaskItem($event)"
+			>拖拉加入</div>
+
 		</div>
 	
 		<div id='draw-ground' 
@@ -24,6 +29,9 @@
 			@mousewheel="mousewheelBackgroundCanvas"
 			@mousedown.right="moveBackgroundCanvas" 
 			@contextmenu.prevent="" 
+			@drop="onDrop($event)"
+			@dragover.prevent
+			@dragenter.prevent
 			>
 			<div id='alert-windows-list'>
 				<div v-for="(alertItem,alertUuid, index) in alertList"

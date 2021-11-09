@@ -207,14 +207,14 @@ var app = new Vue({
 			}
 		},
 		
-		addNewTaskItem(){
+		addNewTaskItem(x, y){
 			Vue.set(
 				this.D_taskList,
 				_uuid(),
 				{
 					'taskName':'',
-					'x': 500,
-					'y': 310,
+					'x': x,
+					'y': y,
 					'x_y': '',
 					'lineList': {
 						't':{},
@@ -775,6 +775,17 @@ var app = new Vue({
 				}
 			}
 		},
+
+		startDragNewTaskItem(e){
+			// console.log(e)
+		},
+		onDrop(e){
+			console.log(e)	
+			this.addNewTaskItem(
+				e.clientX - this.D_canvasOffset.x,
+				e.clientY - this.D_canvasOffset.y,
+			)
+		}
 	},
 	
 	updated(){
