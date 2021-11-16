@@ -95,6 +95,8 @@ var app = new Vue({
 		D_pathList:{},		
 		S_pathChose:"",
 		D_hoverList: {},
+		
+		I_pathRadius: 15,
 	},
 	
 	computed: {
@@ -607,126 +609,135 @@ var app = new Vue({
 				D_linkInfo['q_y'] = startPointYOnCanvas+(endPointYOnCanvas-startPointYOnCanvas)/2
 			} else if (S_type=='face-side-pair'){
 				D_linkInfo['mid_x'] = startPointXOnCanvas
+				var radiusValue = Math.min(Math.abs(endPointYOnCanvas - startPointYOnCanvas),this.I_pathRadius)
+				
 				if (endPointYOnCanvas > startPointYOnCanvas){
-					D_linkInfo['mid_y'] = endPointYOnCanvas - 15
+					D_linkInfo['mid_y'] = endPointYOnCanvas - radiusValue
 				} else {
-					D_linkInfo['mid_y'] = endPointYOnCanvas + 15
+					D_linkInfo['mid_y'] = endPointYOnCanvas + radiusValue
 				}
 				D_linkInfo['q_x'] = startPointXOnCanvas
 				D_linkInfo['q_y'] = endPointYOnCanvas
 				
 				D_linkInfo['mid_y_2'] = endPointYOnCanvas
+				var radiusValue = Math.min(Math.abs(endPointXOnCanvas - startPointXOnCanvas),this.I_pathRadius)
 				if (endPointXOnCanvas > startPointXOnCanvas){
-					D_linkInfo['mid_x_2'] = startPointXOnCanvas + 15
+					D_linkInfo['mid_x_2'] = startPointXOnCanvas + radiusValue
 				} else {
-					D_linkInfo['mid_x_2'] = startPointXOnCanvas - 15
+					D_linkInfo['mid_x_2'] = startPointXOnCanvas - radiusValue
 				}
 			} else if (S_type=='side-face-pair'){
 				D_linkInfo['mid_y'] = startPointYOnCanvas
+				var radiusValue = Math.min(Math.abs(endPointXOnCanvas - startPointXOnCanvas),this.I_pathRadius)
 				if (endPointXOnCanvas > startPointXOnCanvas){
-					D_linkInfo['mid_x'] = endPointXOnCanvas - 15
+					D_linkInfo['mid_x'] = endPointXOnCanvas - radiusValue
 				} else {
-					D_linkInfo['mid_x'] = endPointXOnCanvas + 15
+					D_linkInfo['mid_x'] = endPointXOnCanvas + radiusValue
 				}
 				D_linkInfo['q_x'] = endPointXOnCanvas
 				D_linkInfo['q_y'] = startPointYOnCanvas
 				
 				D_linkInfo['mid_x_2'] = endPointXOnCanvas
+				var radiusValue = Math.min(Math.abs(endPointYOnCanvas - startPointYOnCanvas),this.I_pathRadius)
 				if (endPointYOnCanvas > startPointYOnCanvas){
-					D_linkInfo['mid_y_2'] = startPointYOnCanvas + 15
+					D_linkInfo['mid_y_2'] = startPointYOnCanvas + radiusValue
 				} else {
-					D_linkInfo['mid_y_2'] = startPointYOnCanvas - 15
+					D_linkInfo['mid_y_2'] = startPointYOnCanvas - radiusValue
 				}
 			} else if (S_type=='same-t'){
+				var radiusValue = Math.min(Math.abs(endPointXOnCanvas - startPointXOnCanvas)/2,this.I_pathRadius)
 				D_linkInfo['mid_x'] = startPointXOnCanvas
 				D_linkInfo['mid_y'] = Math.min(startPointYOnCanvas, endPointYOnCanvas) - 15
 				D_linkInfo['q_x'] = startPointXOnCanvas
-				D_linkInfo['q_y'] = Math.min(startPointYOnCanvas, endPointYOnCanvas) - 30
-				D_linkInfo['mid_y_2'] = Math.min(startPointYOnCanvas, endPointYOnCanvas) - 30
+				D_linkInfo['q_y'] = Math.min(startPointYOnCanvas, endPointYOnCanvas) - 15 - radiusValue
+				D_linkInfo['mid_y_2'] = Math.min(startPointYOnCanvas, endPointYOnCanvas) - 15 - radiusValue
 				if (endPointXOnCanvas > startPointXOnCanvas){
-					D_linkInfo['mid_x_2'] = startPointXOnCanvas + 15
+					D_linkInfo['mid_x_2'] = startPointXOnCanvas + radiusValue
 				} else {
-					D_linkInfo['mid_x_2'] = startPointXOnCanvas - 15
+					D_linkInfo['mid_x_2'] = startPointXOnCanvas - radiusValue
 				}
 				
-				D_linkInfo['mid_y_3'] = Math.min(startPointYOnCanvas, endPointYOnCanvas)  - 30
+				D_linkInfo['mid_y_3'] = Math.min(startPointYOnCanvas, endPointYOnCanvas)  - 15 - radiusValue
 				if (endPointXOnCanvas > startPointXOnCanvas){
-					D_linkInfo['mid_x_3'] = endPointXOnCanvas - 15
+					D_linkInfo['mid_x_3'] = endPointXOnCanvas - radiusValue
 				} else {
-					D_linkInfo['mid_x_3'] = endPointXOnCanvas + 15
+					D_linkInfo['mid_x_3'] = endPointXOnCanvas + radiusValue
 				}
 				D_linkInfo['q_x_2'] = endPointXOnCanvas
-				D_linkInfo['q_y_2'] = Math.min(startPointYOnCanvas, endPointYOnCanvas)  - 30
+				D_linkInfo['q_y_2'] = Math.min(startPointYOnCanvas, endPointYOnCanvas)  - 15 - radiusValue
 				
 				D_linkInfo['mid_y_4'] = Math.min(startPointYOnCanvas, endPointYOnCanvas) - 15
 				D_linkInfo['mid_x_4'] = endPointXOnCanvas
 			} else if (S_type=='same-b'){
+				var radiusValue = Math.min(Math.abs(endPointXOnCanvas - startPointXOnCanvas)/2,this.I_pathRadius)
 				D_linkInfo['mid_x'] = startPointXOnCanvas
 				D_linkInfo['mid_y'] = Math.max(startPointYOnCanvas, endPointYOnCanvas) + 15
 				D_linkInfo['q_x'] = startPointXOnCanvas
-				D_linkInfo['q_y'] = Math.max(startPointYOnCanvas, endPointYOnCanvas) + 30
-				D_linkInfo['mid_y_2'] = Math.max(startPointYOnCanvas, endPointYOnCanvas) + 30
+				D_linkInfo['q_y'] = Math.max(startPointYOnCanvas, endPointYOnCanvas) + 15 + radiusValue
+				D_linkInfo['mid_y_2'] = Math.max(startPointYOnCanvas, endPointYOnCanvas) + 15 + radiusValue
 				if (endPointXOnCanvas > startPointXOnCanvas){
-					D_linkInfo['mid_x_2'] = startPointXOnCanvas + 15
+					D_linkInfo['mid_x_2'] = startPointXOnCanvas + radiusValue
 				} else {
-					D_linkInfo['mid_x_2'] = startPointXOnCanvas - 15
+					D_linkInfo['mid_x_2'] = startPointXOnCanvas - radiusValue
 				}
 				
-				D_linkInfo['mid_y_3'] = Math.max(startPointYOnCanvas, endPointYOnCanvas)  + 30
+				D_linkInfo['mid_y_3'] = Math.max(startPointYOnCanvas, endPointYOnCanvas)  + 15 + radiusValue
 				if (endPointXOnCanvas > startPointXOnCanvas){
-					D_linkInfo['mid_x_3'] = endPointXOnCanvas - 15
+					D_linkInfo['mid_x_3'] = endPointXOnCanvas - radiusValue
 				} else {
-					D_linkInfo['mid_x_3'] = endPointXOnCanvas + 15
+					D_linkInfo['mid_x_3'] = endPointXOnCanvas + radiusValue
 				}
 				D_linkInfo['q_x_2'] = endPointXOnCanvas
-				D_linkInfo['q_y_2'] = Math.max(startPointYOnCanvas, endPointYOnCanvas) + 30
+				D_linkInfo['q_y_2'] = Math.max(startPointYOnCanvas, endPointYOnCanvas) + 15 + radiusValue
 				
 				D_linkInfo['mid_y_4'] = Math.max(startPointYOnCanvas, endPointYOnCanvas) + 15
 				D_linkInfo['mid_x_4'] = endPointXOnCanvas
 			} else if (S_type=='same-r'){
+				var radiusValue = Math.min(Math.abs(endPointYOnCanvas - startPointYOnCanvas)/2,this.I_pathRadius)
 				D_linkInfo['mid_x'] = Math.max(startPointXOnCanvas, endPointXOnCanvas) + 15
 				D_linkInfo['mid_y'] = startPointYOnCanvas
-				D_linkInfo['q_x'] = Math.max(startPointXOnCanvas, endPointXOnCanvas) + 30
+				D_linkInfo['q_x'] = Math.max(startPointXOnCanvas, endPointXOnCanvas) + 15 + radiusValue
 				D_linkInfo['q_y'] = startPointYOnCanvas
-				D_linkInfo['mid_x_2'] = Math.max(startPointXOnCanvas, endPointXOnCanvas) + 30
+				D_linkInfo['mid_x_2'] = Math.max(startPointXOnCanvas, endPointXOnCanvas) + 15 + radiusValue
 				
 				if (endPointYOnCanvas > startPointYOnCanvas){
-					D_linkInfo['mid_y_2'] = startPointYOnCanvas + 15
+					D_linkInfo['mid_y_2'] = startPointYOnCanvas + radiusValue
 				} else {
-					D_linkInfo['mid_y_2'] = startPointYOnCanvas - 15
+					D_linkInfo['mid_y_2'] = startPointYOnCanvas - radiusValue
 				}
 				
-				D_linkInfo['mid_x_3'] = Math.max(startPointXOnCanvas, endPointXOnCanvas) + 30
+				D_linkInfo['mid_x_3'] = Math.max(startPointXOnCanvas, endPointXOnCanvas) + 15 + radiusValue
 				if (endPointYOnCanvas > startPointYOnCanvas){
-					D_linkInfo['mid_y_3'] = endPointYOnCanvas - 15
+					D_linkInfo['mid_y_3'] = endPointYOnCanvas - radiusValue
 				} else {
-					D_linkInfo['mid_y_3'] = endPointYOnCanvas + 15
+					D_linkInfo['mid_y_3'] = endPointYOnCanvas + radiusValue
 				}
-				D_linkInfo['q_x_2'] = Math.max(startPointXOnCanvas, endPointXOnCanvas) + 30
+				D_linkInfo['q_x_2'] = Math.max(startPointXOnCanvas, endPointXOnCanvas) + 15 + radiusValue
 				D_linkInfo['q_y_2'] = endPointYOnCanvas
 				
 				D_linkInfo['mid_x_4'] = Math.max(startPointXOnCanvas, endPointXOnCanvas) + 15
 				D_linkInfo['mid_y_4'] = endPointYOnCanvas
 			} else if (S_type=='same-l'){
+				var radiusValue = Math.min(Math.abs(endPointYOnCanvas - startPointYOnCanvas)/2,this.I_pathRadius)
 				D_linkInfo['mid_x'] = Math.min(startPointXOnCanvas, endPointXOnCanvas) - 15
 				D_linkInfo['mid_y'] = startPointYOnCanvas
-				D_linkInfo['q_x'] = Math.min(startPointXOnCanvas, endPointXOnCanvas) - 30
+				D_linkInfo['q_x'] = Math.min(startPointXOnCanvas, endPointXOnCanvas) - 15 - radiusValue
 				D_linkInfo['q_y'] = startPointYOnCanvas
-				D_linkInfo['mid_x_2'] = Math.min(startPointXOnCanvas, endPointXOnCanvas) - 30
+				D_linkInfo['mid_x_2'] = Math.min(startPointXOnCanvas, endPointXOnCanvas) - 15 - radiusValue
 				
 				if (endPointYOnCanvas > startPointYOnCanvas){
-					D_linkInfo['mid_y_2'] = startPointYOnCanvas + 15
+					D_linkInfo['mid_y_2'] = startPointYOnCanvas + radiusValue
 				} else {
-					D_linkInfo['mid_y_2'] = startPointYOnCanvas - 15
+					D_linkInfo['mid_y_2'] = startPointYOnCanvas - radiusValue
 				}
 				
-				D_linkInfo['mid_x_3'] = Math.min(startPointXOnCanvas, endPointXOnCanvas) - 30
+				D_linkInfo['mid_x_3'] = Math.min(startPointXOnCanvas, endPointXOnCanvas) - 15 - radiusValue
 				if (endPointYOnCanvas > startPointYOnCanvas){
-					D_linkInfo['mid_y_3'] = endPointYOnCanvas - 15
+					D_linkInfo['mid_y_3'] = endPointYOnCanvas - radiusValue
 				} else {
-					D_linkInfo['mid_y_3'] = endPointYOnCanvas + 15
+					D_linkInfo['mid_y_3'] = endPointYOnCanvas + radiusValue
 				}
-				D_linkInfo['q_x_2'] = Math.min(startPointXOnCanvas, endPointXOnCanvas) - 30
+				D_linkInfo['q_x_2'] = Math.min(startPointXOnCanvas, endPointXOnCanvas) - 15 - radiusValue
 				D_linkInfo['q_y_2'] = endPointYOnCanvas
 				
 				D_linkInfo['mid_x_4'] = Math.min(startPointXOnCanvas, endPointXOnCanvas) - 15
