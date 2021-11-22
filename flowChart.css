@@ -288,3 +288,11 @@ body {
 	color: var(--secondary);
 	word-wrap: break-word;
 }
+
+.moved-point {
+	pointer-events: auto;
+}
+
+.moved-point:hover {
+	fill: aqua;
+}

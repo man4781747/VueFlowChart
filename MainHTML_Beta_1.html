@@ -147,25 +147,35 @@
 						</marker> 
 					</defs>
 					<g>
-						<!-- <circle class='test-cr' :cx="D_LinkItem.bg_width/2" :cy="D_LinkItem.bg_height/2" r="5"/>
+						<!-- <circle class='moved-point' :cx="D_LinkItem.mid_x" :cy="D_LinkItem.mid_y" r="10" @click="moveChosedPoint($event, D_LinkItem.mid_x, D_LinkItem.mid_y)"/> -->
+
+						<circle class='test-cr' :cx="D_LinkItem.bg_width/2" :cy="D_LinkItem.bg_height/2" r="5"/>
 						<circle class='test-cr' :cx="0" :cy="0" r="5"/>
 						<circle class='test-cr' :cx="D_LinkItem.bg_width" :cy="0" r="5"/>
 						<circle class='test-cr' :cx="0" :cy="D_LinkItem.bg_height" r="5"/>
 						<circle class='test-cr' :cx="D_LinkItem.bg_width" :cy="D_LinkItem.bg_height" r="5"/>
-						 -->
 						
-						<path stroke="transparent" stroke-width="2" fill="none"
-						@contextmenu.prevent.stop="removePath(S_uuid)" 
-						v-if="D_LinkItem.type=='t-b-pair'"
-						:id="'path_'+S_uuid"
-						marker-end="url(#arrow)"
-						:d="'M'+D_LinkItem.start_x+','+D_LinkItem.start_y+
-						    ' Q'+D_LinkItem.q_x+' '+D_LinkItem.q_y+','+D_LinkItem.mid_x+' '+D_LinkItem.mid_y+
-							' T'+D_LinkItem.end_x+','+D_LinkItem.end_y
-						" 
-						class='stoke'
-						:class="D_hoverList[S_uuid]!=undefined?'hover-path':''"
-						></path>
+						<!-- 上下面連接 -->
+						<g v-if="D_LinkItem.type=='t-b-pair'">
+							<path stroke="transparent" stroke-width="2" fill="none"
+							@contextmenu.prevent.stop="removePath(S_uuid)" 
+							:id="'path_'+S_uuid"
+							marker-end="url(#arrow)"
+							:d="'M'+D_LinkItem.start_x+','+D_LinkItem.start_y+
+								' Q'+D_LinkItem.q_x+' '+D_LinkItem.q_y+','+
+								((D_LinkItem.start_x+D_LinkItem.end_x)*D_LinkItem.mid_x)+' '+((D_LinkItem.start_y+D_LinkItem.end_y)*D_LinkItem.mid_y)+
+								' T'+D_LinkItem.end_x+','+D_LinkItem.end_y
+							" 
+							class='stoke'
+							:class="D_hoverList[S_uuid]!=undefined?'hover-path':''"
+							></path>
+							<circle class='moved-point' 
+							:cx="((D_LinkItem.start_x+D_LinkItem.end_x)*D_LinkItem.mid_x)" 
+							:cy="((D_LinkItem.start_y+D_LinkItem.end_y)*D_LinkItem.mid_y)" 
+							r="10" @mousedown.left.stop="moveCenterPoint_t_b($event, D_LinkItem)"/>
+							<circle class='moved-point' :cx="D_LinkItem.q_x" :cy="D_LinkItem.q_y" r="5" @mousedown.left.stop="moveChosedPoint($event, D_LinkItem, 'q_x', 'q_y')"/>
+						</g>
+
 						<path stroke="transparent" stroke-width="2" fill="none" 
 						@contextmenu.prevent.stop="removePath(S_uuid)"
 						v-else-if="D_LinkItem.type=='r-l-pair'"

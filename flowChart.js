@@ -188,7 +188,7 @@ var app = new Vue({
 		},
 
 		updatePathDraw(S_taskChose){
-			return null
+			// return null
 			if (this.D_taskList[S_taskChose] == undefined){
 				console.log('Lost Task!')
 				return null
@@ -202,10 +202,29 @@ var app = new Vue({
 				var D_LinkItemInfo = this.D_pathList_ByItem[S_taskChose][S_LinkUuid]
 				var S_startEleID = D_LinkItemInfo['from']
 				var S_endEleID = D_LinkItemInfo['to']
-				D_LinkItemInfo['x_1'] = getPosition(S_startEleID).x - 5
-				D_LinkItemInfo['y_1'] = getPosition(S_startEleID).y - 5
-				D_LinkItemInfo['x_2'] = getPosition(S_endEleID).x - 5
-				D_LinkItemInfo['y_2'] = getPosition(S_endEleID).y - 5
+
+				D_start = getPosition(S_startEleID)
+				D_end = getPosition(S_endEleID)
+
+				startPointXOnCanvas = Math.abs(D_end.x-D_start.x) + this.svg_path_padding
+				startPointYOnCanvas = Math.abs(D_end.y-D_start.y) + this.svg_path_padding
+				endPointXOnCanvas   = Math.abs(D_end.x-D_start.x)+(D_end.x-D_start.x) + this.svg_path_padding
+				endPointYOnCanvas   = Math.abs(D_end.y-D_start.y)+(D_end.y-D_start.y) + this.svg_path_padding
+
+				D_LinkItemInfo['bg_left'] = (D_start.x)-Math.abs(D_end.x-D_start.x)-this.svg_path_padding- this.D_canvasOffset.x - this.DrawCanvas.border + 4
+				D_LinkItemInfo['bg_top'] = (D_start.y)-Math.abs(D_end.y-D_start.y)-this.svg_path_padding - this.D_canvasOffset.y - this.DrawCanvas.border + 4
+				D_LinkItemInfo['bg_width'] = 2*Math.abs(D_end.x-D_start.x)+this.svg_path_padding*2
+				D_LinkItemInfo['bg_height'] = 2*Math.abs(D_end.y-D_start.y)+this.svg_path_padding*2
+				
+				D_LinkItemInfo['start_x'] = startPointXOnCanvas
+				D_LinkItemInfo['start_y'] = startPointYOnCanvas
+				D_LinkItemInfo['end_x'] = endPointXOnCanvas
+				D_LinkItemInfo['end_y'] = endPointYOnCanvas
+
+				
+
+
+
 			}
 		},
 		
@@ -566,6 +585,47 @@ var app = new Vue({
             };
 		},
 		
+		moveChosedPoint(e, D_item, S_x, S_y){
+			let disX = e.clientX - D_item[S_x]
+			let disY = e.clientY - D_item[S_y]
+			var D_item = D_item
+			var S_x = S_x
+			var S_y = S_y
+			document.onmousemove = (e)=>{
+				// 滑鼠位置(絕對位置，不受縮放影響)
+				
+				let left = (e.clientX - disX)/this.canvasScale ;    
+				let top = (e.clientY - disY)/this.canvasScale;
+				Vue.set(D_item, S_x, left)
+				Vue.set(D_item, S_y, top)
+			}
+			document.onmouseup = (e) => {
+				document.onmousemove = null;
+				document.onmouseup = null;
+			};
+		},
+
+		moveCenterPoint_t_b(e, D_LinkItem){
+			let disX = e.clientX - ((D_LinkItem.start_x+D_LinkItem.end_x)*D_LinkItem.mid_x)
+			let disY = e.clientY - ((D_LinkItem.start_y+D_LinkItem.end_y)*D_LinkItem.mid_y)
+			var D_LinkItem = D_LinkItem
+			document.onmousemove = (e)=>{
+				// 滑鼠位置(絕對位置，不受縮放影響)
+				
+				let left = ((e.clientX - disX)/this.canvasScale)/(D_LinkItem.start_x+D_LinkItem.end_x)
+				let top = ((e.clientY - disY)/this.canvasScale)/(D_LinkItem.start_y+D_LinkItem.end_y)
+				D_LinkItem['mid_x'] = left
+				D_LinkItem['mid_y'] = top
+
+			}
+			document.onmouseup = (e) => {
+				document.onmousemove = null;
+				document.onmouseup = null;
+			};
+
+		},
+
+
 		mousewheelBackgroundCanvas(e){
 			return null
 			this.canvasScale = this.canvasScale - (e.deltaY/1000)
@@ -577,10 +637,6 @@ var app = new Vue({
 		},
 		
 		clacLinePathPoints(D_start, D_end, S_type){
-			// D_start.x = D_start.x - 5
-			// D_start.y = D_start.y - 20
-			// D_end.x = D_end.x - 5
-			// D_end.y = D_end.y - 20
 			
 			startPointXOnCanvas = Math.abs(D_end.x-D_start.x) + this.svg_path_padding
 			startPointYOnCanvas = Math.abs(D_end.y-D_start.y) + this.svg_path_padding
@@ -603,8 +659,13 @@ var app = new Vue({
 				D_linkInfo['q_x'] = startPointXOnCanvas+(endPointXOnCanvas-startPointXOnCanvas)/2
 				D_linkInfo['q_y'] = startPointYOnCanvas+(endPointYOnCanvas-startPointYOnCanvas)/8
 			} else if (S_type=='t-b-pair'){
-				D_linkInfo['mid_x'] = (startPointXOnCanvas+endPointXOnCanvas)/2
-				D_linkInfo['mid_y'] = (startPointYOnCanvas+endPointYOnCanvas)/2
+				D_linkInfo['mid_x'] = 0.5
+				D_linkInfo['mid_y'] = 0.5
+				// D_linkInfo['q_x'] = 0.2
+				// D_linkInfo['q_y'] = 0.5
+
+				// D_linkInfo['mid_x'] = (startPointXOnCanvas+endPointXOnCanvas)/2
+				// D_linkInfo['mid_y'] = (startPointYOnCanvas+endPointYOnCanvas)/2
 				D_linkInfo['q_x'] = startPointXOnCanvas+(endPointXOnCanvas-startPointXOnCanvas)/8
 				D_linkInfo['q_y'] = startPointYOnCanvas+(endPointYOnCanvas-startPointYOnCanvas)/2
 			} else if (S_type=='face-side-pair'){
@@ -806,11 +867,11 @@ var app = new Vue({
 			formXY = getPosition(S_fromKey)
 			toXY = getPosition(S_toKey)
 			// console.log(this.D_pathList[S_pathUuid])
-			D_newLineInfos = this.clacLinePathPoints(formXY, toXY, this.D_pathList[S_pathUuid]['type'])
+			// D_newLineInfos = this.clacLinePathPoints(formXY, toXY, this.D_pathList[S_pathUuid]['type'])
 			// console.log(D_newLineInfos)
-			for (S_key of Object.keys(D_newLineInfos)){
-				this.D_pathList[S_pathUuid][S_key] = D_newLineInfos[S_key]
-			}
+			// for (S_key of Object.keys(D_newLineInfos)){
+			// 	this.D_pathList[S_pathUuid][S_key] = D_newLineInfos[S_key]
+			// }
 			// console.log(this.D_pathList[S_pathUuid])
 			
 
