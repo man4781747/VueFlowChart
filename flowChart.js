@@ -13,6 +13,14 @@ function getPosition (S_id) {
   return { x: x, y: y };
 }
 
+function getPosition_onCanvas (S_id) {
+	D_PositionOnHTML = getPosition(S_id)
+	return {
+		x: D_PositionOnHTML.x - app.D_canvasOffset.x - app.DrawCanvas.border + 4,
+		y: D_PositionOnHTML.y - app.D_canvasOffset.y - app.DrawCanvas.border + 4,
+	};
+  }
+
 function _uuid(){
 	// 計算隨機的UUID當作唯一Key
 	var d = Date.now();
@@ -199,31 +207,7 @@ var app = new Vue({
 				)
 			}
 			for (S_LinkUuid of Object.keys(this.D_pathList_ByItem[S_taskChose])){
-				var D_LinkItemInfo = this.D_pathList_ByItem[S_taskChose][S_LinkUuid]
-				var S_startEleID = D_LinkItemInfo['from']
-				var S_endEleID = D_LinkItemInfo['to']
-
-				D_start = getPosition(S_startEleID)
-				D_end = getPosition(S_endEleID)
-
-				startPointXOnCanvas = Math.abs(D_end.x-D_start.x) + this.svg_path_padding
-				startPointYOnCanvas = Math.abs(D_end.y-D_start.y) + this.svg_path_padding
-				endPointXOnCanvas   = Math.abs(D_end.x-D_start.x)+(D_end.x-D_start.x) + this.svg_path_padding
-				endPointYOnCanvas   = Math.abs(D_end.y-D_start.y)+(D_end.y-D_start.y) + this.svg_path_padding
-
-				D_LinkItemInfo['bg_left'] = (D_start.x)-Math.abs(D_end.x-D_start.x)-this.svg_path_padding- this.D_canvasOffset.x - this.DrawCanvas.border + 4
-				D_LinkItemInfo['bg_top'] = (D_start.y)-Math.abs(D_end.y-D_start.y)-this.svg_path_padding - this.D_canvasOffset.y - this.DrawCanvas.border + 4
-				D_LinkItemInfo['bg_width'] = 2*Math.abs(D_end.x-D_start.x)+this.svg_path_padding*2
-				D_LinkItemInfo['bg_height'] = 2*Math.abs(D_end.y-D_start.y)+this.svg_path_padding*2
-				
-				D_LinkItemInfo['start_x'] = startPointXOnCanvas
-				D_LinkItemInfo['start_y'] = startPointYOnCanvas
-				D_LinkItemInfo['end_x'] = endPointXOnCanvas
-				D_LinkItemInfo['end_y'] = endPointYOnCanvas
-
-				
-
-
+				this.updateLinkPathDraw(S_LinkUuid)
 
 			}
 		},
@@ -428,21 +412,11 @@ var app = new Vue({
 				S_type = 'side-face-pair'
 			}
 			
-			getPosition_Start = getPosition(S_startEleID)
-			getPosition_End = getPosition(S_endEleID)
-			
-			startPointXOnCanvas = Math.abs(getPosition_End.x-getPosition_Start.x)+26
-			startPointYOnCanvas = Math.abs(getPosition_End.y-getPosition_Start.y)+26
-			
-			D_pointInfos = this.clacLinePathPoints(getPosition_Start, getPosition_End, S_type)
+			D_pointInfos = this.clacLinePathPoints(getPosition_onCanvas(S_startEleID), getPosition_onCanvas(S_endEleID), S_type)
 			// 建立link物件資訊
 			var D_linkInfo = {
 				'from': S_fromEleID,
 				'to': S_toEleID,
-				'startPointXOnCanvas':startPointXOnCanvas,
-				'y_1':getPosition(S_startEleID).y,
-				'x_2':getPosition(S_endEleID).x,
-				'y_2':getPosition(S_endEleID).y,
 				'uuid': S_pathUuid,
 				'type': S_type,
 				
@@ -605,24 +579,68 @@ var app = new Vue({
 			};
 		},
 
-		moveCenterPoint_t_b(e, D_LinkItem){
-			let disX = e.clientX - ((D_LinkItem.start_x+D_LinkItem.end_x)*D_LinkItem.mid_x)
-			let disY = e.clientY - ((D_LinkItem.start_y+D_LinkItem.end_y)*D_LinkItem.mid_y)
+		moveCenterPoint(e, D_LinkItem){
+			let disX = e.clientX - ((-D_LinkItem.start_x+D_LinkItem.end_x)*D_LinkItem.mid_x)
+			let disY = e.clientY - ((-D_LinkItem.start_y+D_LinkItem.end_y)*D_LinkItem.mid_y)
 			var D_LinkItem = D_LinkItem
 			document.onmousemove = (e)=>{
-				// 滑鼠位置(絕對位置，不受縮放影響)
-				
-				let left = ((e.clientX - disX)/this.canvasScale)/(D_LinkItem.start_x+D_LinkItem.end_x)
-				let top = ((e.clientY - disY)/this.canvasScale)/(D_LinkItem.start_y+D_LinkItem.end_y)
+				let left = ((e.clientX - disX)/this.canvasScale)/(-D_LinkItem.start_x+D_LinkItem.end_x)
+				let top = ((e.clientY - disY)/this.canvasScale)/(-D_LinkItem.start_y+D_LinkItem.end_y)
 				D_LinkItem['mid_x'] = left
 				D_LinkItem['mid_y'] = top
-
 			}
 			document.onmouseup = (e) => {
 				document.onmousemove = null;
 				document.onmouseup = null;
-			};
+			}
+		},
 
+		moveCenterPoint_qPoint(e, D_LinkItem){
+			let disX = e.clientX - (D_LinkItem.q_x*(-D_LinkItem.start_x+D_LinkItem.end_x))
+			let disY = e.clientY - (D_LinkItem.q_y*(-D_LinkItem.start_y+D_LinkItem.end_y))
+			var D_LinkItem = D_LinkItem
+			document.onmousemove = (e)=>{
+				let left = ((e.clientX - disX)/this.canvasScale)/(-D_LinkItem.start_x+D_LinkItem.end_x)
+				let top = ((e.clientY - disY)/this.canvasScale)/(-D_LinkItem.start_y+D_LinkItem.end_y)
+				D_LinkItem['q_x'] = left
+				D_LinkItem['q_y'] = top
+			}
+			document.onmouseup = (e) => {
+				document.onmousemove = null;
+				document.onmouseup = null;
+			}
+		},
+
+		moveCenterPoint_radius(e, D_LinkItem){
+			let max_r = Math.min(
+				Math.abs(D_LinkItem.start_x-D_LinkItem.end_x)-15,
+				Math.abs(D_LinkItem.start_y-D_LinkItem.end_y)-15,
+			)
+
+			let disX = e.clientX - D_LinkItem.radius
+			var D_LinkItem = D_LinkItem
+			document.onmousemove = (e)=>{
+				let left = Math.abs((e.clientX - disX)/this.canvasScale)
+				D_LinkItem['radius'] = Math.min(Math.max(left,15), max_r)
+			}
+			document.onmouseup = (e) => {
+				document.onmousemove = null;
+				document.onmouseup = null;
+			}
+		},
+
+		moveCenterPoint_distance(e, D_LinkItem, type=1){
+
+			let disY = e.clientY + D_LinkItem.distance*type
+			var D_LinkItem = D_LinkItem
+			document.onmousemove = (e)=>{
+				let top = -(e.clientY - disY)*type
+				D_LinkItem['distance'] = Math.max(top,30)
+			}
+			document.onmouseup = (e) => {
+				document.onmousemove = null;
+				document.onmouseup = null;
+			}
 		},
 
 
@@ -637,99 +655,36 @@ var app = new Vue({
 		},
 		
 		clacLinePathPoints(D_start, D_end, S_type){
-			
 			startPointXOnCanvas = Math.abs(D_end.x-D_start.x) + this.svg_path_padding
 			startPointYOnCanvas = Math.abs(D_end.y-D_start.y) + this.svg_path_padding
 			endPointXOnCanvas   = Math.abs(D_end.x-D_start.x)+(D_end.x-D_start.x) + this.svg_path_padding
 			endPointYOnCanvas   = Math.abs(D_end.y-D_start.y)+(D_end.y-D_start.y) + this.svg_path_padding
+
 			D_linkInfo = {
-				'bg_left': (D_start.x)-Math.abs(D_end.x-D_start.x)-this.svg_path_padding- this.D_canvasOffset.x - this.DrawCanvas.border + 4,
-				'bg_top': (D_start.y)-Math.abs(D_end.y-D_start.y)-this.svg_path_padding - this.D_canvasOffset.y - this.DrawCanvas.border + 4,
-				'bg_width': 2*Math.abs(D_end.x-D_start.x)+this.svg_path_padding*2,
-				'bg_height': 2*Math.abs(D_end.y-D_start.y)+this.svg_path_padding*2,
-				
-				'start_x': startPointXOnCanvas,
-				'start_y': startPointYOnCanvas,
-				'end_x': endPointXOnCanvas,
-				'end_y': endPointYOnCanvas,
+				'start_x': D_start.x,
+				'start_y': D_start.y,
+				'end_x': D_end.x,
+				'end_y': D_end.y,
 			}
 			if (S_type=='r-l-pair'){
-				D_linkInfo['mid_x'] = (startPointXOnCanvas+endPointXOnCanvas)/2
-				D_linkInfo['mid_y'] = (startPointYOnCanvas+endPointYOnCanvas)/2
-				D_linkInfo['q_x'] = startPointXOnCanvas+(endPointXOnCanvas-startPointXOnCanvas)/2
-				D_linkInfo['q_y'] = startPointYOnCanvas+(endPointYOnCanvas-startPointYOnCanvas)/8
+				D_linkInfo['mid_x'] = 0.5
+				D_linkInfo['mid_y'] = 0.5
+				D_linkInfo['q_x'] = -0
+				D_linkInfo['q_y'] = -0.3
+
 			} else if (S_type=='t-b-pair'){
 				D_linkInfo['mid_x'] = 0.5
 				D_linkInfo['mid_y'] = 0.5
-				// D_linkInfo['q_x'] = 0.2
-				// D_linkInfo['q_y'] = 0.5
-
-				// D_linkInfo['mid_x'] = (startPointXOnCanvas+endPointXOnCanvas)/2
-				// D_linkInfo['mid_y'] = (startPointYOnCanvas+endPointYOnCanvas)/2
-				D_linkInfo['q_x'] = startPointXOnCanvas+(endPointXOnCanvas-startPointXOnCanvas)/8
-				D_linkInfo['q_y'] = startPointYOnCanvas+(endPointYOnCanvas-startPointYOnCanvas)/2
+				D_linkInfo['q_x'] = -0.3
+				D_linkInfo['q_y'] = -0
 			} else if (S_type=='face-side-pair'){
-				D_linkInfo['mid_x'] = startPointXOnCanvas
-				var radiusValue = Math.min(Math.abs(endPointYOnCanvas - startPointYOnCanvas),this.I_pathRadius)
-				
-				if (endPointYOnCanvas > startPointYOnCanvas){
-					D_linkInfo['mid_y'] = endPointYOnCanvas - radiusValue
-				} else {
-					D_linkInfo['mid_y'] = endPointYOnCanvas + radiusValue
-				}
-				D_linkInfo['q_x'] = startPointXOnCanvas
-				D_linkInfo['q_y'] = endPointYOnCanvas
-				
-				D_linkInfo['mid_y_2'] = endPointYOnCanvas
-				var radiusValue = Math.min(Math.abs(endPointXOnCanvas - startPointXOnCanvas),this.I_pathRadius)
-				if (endPointXOnCanvas > startPointXOnCanvas){
-					D_linkInfo['mid_x_2'] = startPointXOnCanvas + radiusValue
-				} else {
-					D_linkInfo['mid_x_2'] = startPointXOnCanvas - radiusValue
-				}
+				D_linkInfo['radius'] = 15 //px
 			} else if (S_type=='side-face-pair'){
-				D_linkInfo['mid_y'] = startPointYOnCanvas
-				var radiusValue = Math.min(Math.abs(endPointXOnCanvas - startPointXOnCanvas),this.I_pathRadius)
-				if (endPointXOnCanvas > startPointXOnCanvas){
-					D_linkInfo['mid_x'] = endPointXOnCanvas - radiusValue
-				} else {
-					D_linkInfo['mid_x'] = endPointXOnCanvas + radiusValue
-				}
-				D_linkInfo['q_x'] = endPointXOnCanvas
-				D_linkInfo['q_y'] = startPointYOnCanvas
-				
-				D_linkInfo['mid_x_2'] = endPointXOnCanvas
-				var radiusValue = Math.min(Math.abs(endPointYOnCanvas - startPointYOnCanvas),this.I_pathRadius)
-				if (endPointYOnCanvas > startPointYOnCanvas){
-					D_linkInfo['mid_y_2'] = startPointYOnCanvas + radiusValue
-				} else {
-					D_linkInfo['mid_y_2'] = startPointYOnCanvas - radiusValue
-				}
+				D_linkInfo['radius'] = 15 //px
 			} else if (S_type=='same-t'){
-				var radiusValue = Math.min(Math.abs(endPointXOnCanvas - startPointXOnCanvas)/2,this.I_pathRadius)
-				D_linkInfo['mid_x'] = startPointXOnCanvas
-				D_linkInfo['mid_y'] = Math.min(startPointYOnCanvas, endPointYOnCanvas) - 15
-				D_linkInfo['q_x'] = startPointXOnCanvas
-				D_linkInfo['q_y'] = Math.min(startPointYOnCanvas, endPointYOnCanvas) - 15 - radiusValue
-				D_linkInfo['mid_y_2'] = Math.min(startPointYOnCanvas, endPointYOnCanvas) - 15 - radiusValue
-				if (endPointXOnCanvas > startPointXOnCanvas){
-					D_linkInfo['mid_x_2'] = startPointXOnCanvas + radiusValue
-				} else {
-					D_linkInfo['mid_x_2'] = startPointXOnCanvas - radiusValue
-				}
-				
-				D_linkInfo['mid_y_3'] = Math.min(startPointYOnCanvas, endPointYOnCanvas)  - 15 - radiusValue
-				if (endPointXOnCanvas > startPointXOnCanvas){
-					D_linkInfo['mid_x_3'] = endPointXOnCanvas - radiusValue
-				} else {
-					D_linkInfo['mid_x_3'] = endPointXOnCanvas + radiusValue
-				}
-				D_linkInfo['q_x_2'] = endPointXOnCanvas
-				D_linkInfo['q_y_2'] = Math.min(startPointYOnCanvas, endPointYOnCanvas)  - 15 - radiusValue
-				
-				D_linkInfo['mid_y_4'] = Math.min(startPointYOnCanvas, endPointYOnCanvas) - 15
-				D_linkInfo['mid_x_4'] = endPointXOnCanvas
+				D_linkInfo['distance'] = 30 //px
 			} else if (S_type=='same-b'){
+				D_linkInfo['distance'] = 30 //px
 				var radiusValue = Math.min(Math.abs(endPointXOnCanvas - startPointXOnCanvas)/2,this.I_pathRadius)
 				D_linkInfo['mid_x'] = startPointXOnCanvas
 				D_linkInfo['mid_y'] = Math.max(startPointYOnCanvas, endPointYOnCanvas) + 15
@@ -857,7 +812,46 @@ var app = new Vue({
 				e.clientX - this.D_canvasOffset.x,
 				e.clientY - this.D_canvasOffset.y,
 			)
-		}
+		},
+
+		updateLinkPathDraw(S_LinkUuid){
+			var D_LinkItemInfo = this.D_pathList[S_LinkUuid]
+			var S_startEleID = D_LinkItemInfo['from']
+			var S_endEleID = D_LinkItemInfo['to']
+
+			D_start = getPosition_onCanvas(S_startEleID)
+			D_end = getPosition_onCanvas(S_endEleID)
+			D_LinkItemInfo.start_x = D_start.x
+			D_LinkItemInfo.start_y = D_start.y
+			D_LinkItemInfo.end_x = D_end.x
+			D_LinkItemInfo.end_y = D_end.y
+
+			if (D_LinkItemInfo.type=='face-side-pair'){
+				let max_d = Math.min(
+					Math.abs(D_LinkItemInfo.start_x-D_LinkItemInfo.end_x),
+					Math.abs(D_LinkItemInfo.start_y-D_LinkItemInfo.end_y),
+				)
+				if (max_d <= 15){
+					D_LinkItemInfo['radius'] = max_d
+				} else {
+					D_LinkItemInfo['radius'] = Math.min(Math.max(D_LinkItemInfo.radius,15), max_d)
+				}
+
+			}
+			else if (D_LinkItemInfo.type=='side-face-pair'){
+				let max_d = Math.min(
+					Math.abs(D_LinkItemInfo.start_x-D_LinkItemInfo.end_x),
+					Math.abs(D_LinkItemInfo.start_y-D_LinkItemInfo.end_y),
+				)
+				if (max_d <= 15){
+					D_LinkItemInfo['radius'] = max_d
+				} else {
+					D_LinkItemInfo['radius'] = Math.min(Math.max(D_LinkItemInfo.radius,15), max_d)
+				}
+
+			}
+
+		},
 	},
 	
 	updated(){

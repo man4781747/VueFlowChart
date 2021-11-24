@@ -137,24 +137,13 @@
 					:class="D_hoverList[S_uuid]!=undefined?'hover-path':''"
 					:id="'link_'+S_uuid"
 					:key='S_uuid'
-					:style="'position: absolute;left:'+D_LinkItem.bg_left+'px;'+
-							'top:'+D_LinkItem.bg_top+'px;'+
-							'height:'+D_LinkItem.bg_height+'px;'+
-							'width:'+D_LinkItem.bg_width+'px;'">
+					style="left:0;top:0;width: 100%;height: 100%;">
 					<defs> 
 						<marker id="arrow" markerWidth="40" markerHeight="40" refx="10" refy="3" orient="auto" markerUnits="strokeWidth" viewBox="0 0 80 80"> 
 							<path d="M0,0 L0,6 L9,3 z" fill="#f00" /> 
 						</marker> 
 					</defs>
-					<g>
-						<!-- <circle class='moved-point' :cx="D_LinkItem.mid_x" :cy="D_LinkItem.mid_y" r="10" @click="moveChosedPoint($event, D_LinkItem.mid_x, D_LinkItem.mid_y)"/> -->
-
-						<circle class='test-cr' :cx="D_LinkItem.bg_width/2" :cy="D_LinkItem.bg_height/2" r="5"/>
-						<circle class='test-cr' :cx="0" :cy="0" r="5"/>
-						<circle class='test-cr' :cx="D_LinkItem.bg_width" :cy="0" r="5"/>
-						<circle class='test-cr' :cx="0" :cy="D_LinkItem.bg_height" r="5"/>
-						<circle class='test-cr' :cx="D_LinkItem.bg_width" :cy="D_LinkItem.bg_height" r="5"/>
-						
+					<g>{{S_uuid}}
 						<!-- 上下面連接 -->
 						<g v-if="D_LinkItem.type=='t-b-pair'">
 							<path stroke="transparent" stroke-width="2" fill="none"
@@ -162,73 +151,123 @@
 							:id="'path_'+S_uuid"
 							marker-end="url(#arrow)"
 							:d="'M'+D_LinkItem.start_x+','+D_LinkItem.start_y+
-								' Q'+D_LinkItem.q_x+' '+D_LinkItem.q_y+','+
-								((D_LinkItem.start_x+D_LinkItem.end_x)*D_LinkItem.mid_x)+' '+((D_LinkItem.start_y+D_LinkItem.end_y)*D_LinkItem.mid_y)+
+								' Q'+((D_LinkItem.start_x + (-D_LinkItem.start_x+D_LinkItem.end_x)*D_LinkItem.mid_x)+D_LinkItem.q_x*(-D_LinkItem.start_x+D_LinkItem.end_x))+' '+((D_LinkItem.start_y + (-D_LinkItem.start_y+D_LinkItem.end_y)*D_LinkItem.mid_y)+D_LinkItem.q_y*(-D_LinkItem.start_y+D_LinkItem.end_y))+','+
+								(D_LinkItem.start_x + (-D_LinkItem.start_x+D_LinkItem.end_x)*D_LinkItem.mid_x)+' '+(D_LinkItem.start_y + (-D_LinkItem.start_y+D_LinkItem.end_y)*D_LinkItem.mid_y)+
 								' T'+D_LinkItem.end_x+','+D_LinkItem.end_y
 							" 
 							class='stoke'
 							:class="D_hoverList[S_uuid]!=undefined?'hover-path':''"
 							></path>
 							<circle class='moved-point' 
-							:cx="((D_LinkItem.start_x+D_LinkItem.end_x)*D_LinkItem.mid_x)" 
-							:cy="((D_LinkItem.start_y+D_LinkItem.end_y)*D_LinkItem.mid_y)" 
-							r="10" @mousedown.left.stop="moveCenterPoint_t_b($event, D_LinkItem)"/>
-							<circle class='moved-point' :cx="D_LinkItem.q_x" :cy="D_LinkItem.q_y" r="5" @mousedown.left.stop="moveChosedPoint($event, D_LinkItem, 'q_x', 'q_y')"/>
+							:cx="(D_LinkItem.start_x + (-D_LinkItem.start_x+D_LinkItem.end_x)*D_LinkItem.mid_x)" 
+							:cy="(D_LinkItem.start_y + (-D_LinkItem.start_y+D_LinkItem.end_y)*D_LinkItem.mid_y)" 
+							r="10" @mousedown.left.stop="moveCenterPoint($event, D_LinkItem)"/>
+							<circle class='moved-point' 
+							:cx="((D_LinkItem.start_x + (-D_LinkItem.start_x+D_LinkItem.end_x)*D_LinkItem.mid_x)+D_LinkItem.q_x*(-D_LinkItem.start_x+D_LinkItem.end_x))" 
+							:cy="((D_LinkItem.start_y + (-D_LinkItem.start_y+D_LinkItem.end_y)*D_LinkItem.mid_y)+D_LinkItem.q_y*(-D_LinkItem.start_y+D_LinkItem.end_y))" 
+							r="5" @mousedown.left.stop="moveCenterPoint_qPoint($event, D_LinkItem)"/>
+						</g>
+						<g v-else-if="D_LinkItem.type=='r-l-pair'">
+							<path stroke="transparent" stroke-width="2" fill="none"
+							@contextmenu.prevent.stop="removePath(S_uuid)" 
+							:id="'path_'+S_uuid"
+							marker-end="url(#arrow)"
+							:d="'M'+D_LinkItem.start_x+','+D_LinkItem.start_y+
+								' Q'+((D_LinkItem.start_x + (-D_LinkItem.start_x+D_LinkItem.end_x)*D_LinkItem.mid_x)+D_LinkItem.q_x*(-D_LinkItem.start_x+D_LinkItem.end_x))+' '+((D_LinkItem.start_y + (-D_LinkItem.start_y+D_LinkItem.end_y)*D_LinkItem.mid_y)+D_LinkItem.q_y*(-D_LinkItem.start_y+D_LinkItem.end_y))+','+
+								(D_LinkItem.start_x + (-D_LinkItem.start_x+D_LinkItem.end_x)*D_LinkItem.mid_x)+' '+(D_LinkItem.start_y + (-D_LinkItem.start_y+D_LinkItem.end_y)*D_LinkItem.mid_y)+
+								' T'+D_LinkItem.end_x+','+D_LinkItem.end_y
+							" 
+							class='stoke'
+							:class="D_hoverList[S_uuid]!=undefined?'hover-path':''"
+							></path>
+							<circle class='moved-point' 
+							:cx="(D_LinkItem.start_x + (-D_LinkItem.start_x+D_LinkItem.end_x)*D_LinkItem.mid_x)" 
+							:cy="(D_LinkItem.start_y + (-D_LinkItem.start_y+D_LinkItem.end_y)*D_LinkItem.mid_y)" 
+							r="10" @mousedown.left.stop="moveCenterPoint($event, D_LinkItem)"/>
+							<circle class='moved-point' 
+							:cx="((D_LinkItem.start_x + (-D_LinkItem.start_x+D_LinkItem.end_x)*D_LinkItem.mid_x)+D_LinkItem.q_x*(-D_LinkItem.start_x+D_LinkItem.end_x))" 
+							:cy="((D_LinkItem.start_y + (-D_LinkItem.start_y+D_LinkItem.end_y)*D_LinkItem.mid_y)+D_LinkItem.q_y*(-D_LinkItem.start_y+D_LinkItem.end_y))" 
+							r="5" @mousedown.left.stop="moveCenterPoint_qPoint($event, D_LinkItem)"/>
+						</g>
+						<g v-else-if="D_LinkItem.type=='face-side-pair'">
+							<path stroke="transparent" stroke-width="2" fill="none" 
+							@contextmenu.prevent.stop="removePath(S_uuid)"
+							:id="'path_'+S_uuid"
+							marker-end="url(#arrow)"
+							:d="'M'+D_LinkItem.start_x+','+D_LinkItem.start_y+
+								' V'+(D_LinkItem.end_y + D_LinkItem.radius*((D_LinkItem.start_y-D_LinkItem.end_y)/Math.abs(D_LinkItem.start_y-D_LinkItem.end_y)))+
+								' Q'+D_LinkItem.start_x+' '+D_LinkItem.end_y+','+
+								(D_LinkItem.start_x - D_LinkItem.radius*((D_LinkItem.start_x-D_LinkItem.end_x)/Math.abs(D_LinkItem.start_x-D_LinkItem.end_x)))+
+								' '+D_LinkItem.end_y+
+								' H'+D_LinkItem.end_x
+								" 
+							class='stoke'
+							:class="D_hoverList[S_uuid]!=undefined?'hover-path':''"
+							></path>
+							<circle class='moved-point' 
+							:cx="(D_LinkItem.start_x - D_LinkItem.radius*((D_LinkItem.start_x-D_LinkItem.end_x)/Math.abs(D_LinkItem.start_x-D_LinkItem.end_x)))" 
+							:cy="D_LinkItem.end_y" 
+							r="5" @mousedown.left.stop="moveCenterPoint_radius($event, D_LinkItem)"/>
+						</g>
+						<g v-else-if="D_LinkItem.type=='side-face-pair'">
+							<path stroke="transparent" stroke-width="2" fill="none" 
+							@contextmenu.prevent.stop="removePath(S_uuid)"
+							:id="'path_'+S_uuid"
+							marker-end="url(#arrow)"
+							:d="'M'+D_LinkItem.start_x+','+D_LinkItem.start_y+
+								' H'+(D_LinkItem.end_x + D_LinkItem.radius*((D_LinkItem.start_x-D_LinkItem.end_x)/Math.abs(D_LinkItem.start_x-D_LinkItem.end_x)))+
+								' Q'+D_LinkItem.end_x+' '+D_LinkItem.start_y+','+
+								D_LinkItem.end_x+' '+(D_LinkItem.start_y - D_LinkItem.radius*((D_LinkItem.start_y-D_LinkItem.end_y)/Math.abs(D_LinkItem.start_y-D_LinkItem.end_y)))+
+								' V'+D_LinkItem.end_y
+								" 
+							class='stoke'
+							:class="D_hoverList[S_uuid]!=undefined?'hover-path':''"
+							></path>
+							<circle class='moved-point' 
+							:cx="(D_LinkItem.end_x + D_LinkItem.radius*((D_LinkItem.start_x-D_LinkItem.end_x)/Math.abs(D_LinkItem.start_x-D_LinkItem.end_x)))" 
+							:cy="D_LinkItem.start_y" 
+							r="5" @mousedown.left.stop="moveCenterPoint_radius($event, D_LinkItem)"/>
+						</g>
+						<g v-else-if="D_LinkItem.type=='same-t'">
+							<path stroke="transparent" stroke-width="2" fill="none" 
+							@contextmenu.prevent.stop="removePath(S_uuid)"
+							:id="'path_'+S_uuid"
+							marker-end="url(#arrow)"
+							:d="'M'+D_LinkItem.start_x+','+D_LinkItem.start_y+
+								' V'+( Math.min(D_LinkItem.start_y, D_LinkItem.end_y) -D_LinkItem.distance)+
+								' H'+D_LinkItem.end_x+
+								' V'+D_LinkItem.end_y
+								" 
+							class='stoke'
+							:class="D_hoverList[S_uuid]!=undefined?'hover-path':''"
+							></path>
+							<circle class='moved-point' 
+							:cx="(D_LinkItem.start_x+D_LinkItem.end_x)/2" 
+							:cy="(Math.min(D_LinkItem.start_y, D_LinkItem.end_y) -D_LinkItem.distance)" 
+							r="5" @mousedown.left.stop="moveCenterPoint_distance($event, D_LinkItem)"/>
+						</g>
+						<g v-else-if="D_LinkItem.type=='same-b'">
+							<path stroke="transparent" stroke-width="2" fill="none" 
+							@contextmenu.prevent.stop="removePath(S_uuid)"
+							:id="'path_'+S_uuid"
+							marker-end="url(#arrow)"
+							:d="'M'+D_LinkItem.start_x+','+D_LinkItem.start_y+
+								' V'+( Math.max(D_LinkItem.start_y, D_LinkItem.end_y)  + D_LinkItem.distance)+
+								' H'+D_LinkItem.end_x+
+								' V'+D_LinkItem.end_y
+								" 
+							class='stoke'
+							:class="D_hoverList[S_uuid]!=undefined?'hover-path':''"
+							></path>
+							<circle class='moved-point' 
+							:cx="(D_LinkItem.start_x+D_LinkItem.end_x)/2" 
+							:cy="(Math.max(D_LinkItem.start_y, D_LinkItem.end_y) + D_LinkItem.distance)" 
+							r="5" @mousedown.left.stop="moveCenterPoint_distance($event, D_LinkItem, -1)"/>
 						</g>
 
-						<path stroke="transparent" stroke-width="2" fill="none" 
-						@contextmenu.prevent.stop="removePath(S_uuid)"
-						v-else-if="D_LinkItem.type=='r-l-pair'"
-						:id="'path_'+S_uuid"
-						marker-end="url(#arrow)"
-						:d="'M'+D_LinkItem.start_x+','+D_LinkItem.start_y+
-						    ' Q'+D_LinkItem.q_x+' '+D_LinkItem.q_y+','+D_LinkItem.mid_x+' '+D_LinkItem.mid_y+
-							' T'+D_LinkItem.end_x+','+D_LinkItem.end_y
-							" 
-						class='stoke'
-						:class="D_hoverList[S_uuid]!=undefined?'hover-path':''"
-						></path>
-						<path stroke="transparent" stroke-width="2" fill="none" 
-						@contextmenu.prevent.stop="removePath(S_uuid)"
-						v-else-if="D_LinkItem.type=='face-side-pair'"
-						:id="'path_'+S_uuid"
-						marker-end="url(#arrow)"
-						:d="'M'+D_LinkItem.start_x+','+D_LinkItem.start_y+
-						    ' V'+D_LinkItem.mid_y+
-							' Q'+D_LinkItem.q_x+' '+D_LinkItem.q_y+','+D_LinkItem.mid_x_2+' '+D_LinkItem.mid_y_2+
-							' H'+D_LinkItem.end_x
-							" 
-						class='stoke'
-						:class="D_hoverList[S_uuid]!=undefined?'hover-path':''"
-						></path>
-						<path stroke="transparent" stroke-width="2" fill="none" 
-						@contextmenu.prevent.stop="removePath(S_uuid)"
-						v-else-if="D_LinkItem.type=='side-face-pair'"
-						:id="'path_'+S_uuid"
-						marker-end="url(#arrow)"
-						:d="'M'+D_LinkItem.start_x+','+D_LinkItem.start_y+
-						    ' H'+D_LinkItem.mid_x+
-							' Q'+D_LinkItem.q_x+' '+D_LinkItem.q_y+','+D_LinkItem.mid_x_2+' '+D_LinkItem.mid_y_2+
-							' V'+D_LinkItem.end_y
-							" 
-						class='stoke'
-						:class="D_hoverList[S_uuid]!=undefined?'hover-path':''"
-						></path>
- 						<path stroke="transparent" stroke-width="2" fill="none" 
-						@contextmenu.prevent.stop="removePath(S_uuid)"
-						v-else-if="D_LinkItem.type=='same-t'"
-						:id="'path_'+S_uuid"
-						marker-end="url(#arrow)"
-						:d="'M'+D_LinkItem.start_x+','+D_LinkItem.start_y+
-						    ' V'+D_LinkItem.mid_y+
-							' Q'+D_LinkItem.q_x+' '+D_LinkItem.q_y+','+D_LinkItem.mid_x_2+' '+D_LinkItem.mid_y_2+
-							' H'+D_LinkItem.mid_x_3+
-							' Q'+D_LinkItem.q_x_2+' '+D_LinkItem.q_y_2+','+D_LinkItem.mid_x_4+' '+D_LinkItem.mid_y_4+
-							' V'+D_LinkItem.end_y
-							" 
-						class='stoke'
-						:class="D_hoverList[S_uuid]!=undefined?'hover-path':''"
-						></path>
+
+
+
  						<path stroke="transparent" stroke-width="2" fill="none" 
 						@contextmenu.prevent.stop="removePath(S_uuid)"
 						v-else-if="D_LinkItem.type=='same-b'"
