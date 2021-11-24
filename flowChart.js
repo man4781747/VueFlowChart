@@ -32,8 +32,8 @@ var app = new Vue({
 		svg_path_padding: 50,
 		
 		DrawCanvas: {
-			width: 1500,
-			height: 1000,
+			width: 2000,
+			height: 1500,
 			border: 3,
 		},
 

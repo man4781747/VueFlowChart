@@ -132,6 +132,13 @@
 					</div>
 				</div>
 
+				<!-- <svg v-for="(D_LinkItem, index) in [...Array(10000).keys()]"
+					width=3000 height=3000
+					style="position:absolute;top:0;left:0;"
+				>
+					<circle :cx="index*index" cy=24 :r=index></>
+				</svg> -->
+				
 				<svg v-for="(D_LinkItem,S_uuid, index) in D_pathList"
 					class='link-stoke-svg-background'
 					:class="D_hoverList[S_uuid]!=undefined?'hover-path':''"
