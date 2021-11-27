@@ -1,3 +1,5 @@
+// gsap.registerPlugin(MotionPathPlugin);
+
 function getPosition (S_id) {
   element = document.getElementById(S_id)
   var x = 0;
@@ -445,6 +447,18 @@ var app = new Vue({
 				D_linkInfo
 			)
 			
+			// gsap.to('#circle_'+S_pathUuid, {
+			// 	duration: 3.3, 
+			// 	repeat: -1,
+			// 	ease: Linear.easeNone,
+			// 	motionPath:{
+			// 	  path: '#path_'+S_pathUuid, // 沿着轨迹运动
+			// 	  align: '#path_'+S_pathUuid,
+			// 	  autoRotate: true,
+			// 	  alignOrigin: [0.5, 0.5]
+			// 	}
+			// });
+
 			// app.updatePathDraw(startEle)
 			// app.updatePathDraw(S_endEleID_Short)
 			
@@ -826,11 +840,11 @@ var app = new Vue({
 	},
 	
 	updated(){
-		for (S_pathUuid of Object.keys(this.D_pathList)){
-			S_fromKey = this.D_pathList[S_pathUuid]['from']
-			S_toKey = this.D_pathList[S_pathUuid]['to']
-			formXY = getPosition(S_fromKey)
-			toXY = getPosition(S_toKey)
+		// for (S_pathUuid of Object.keys(this.D_pathList)){
+			// S_fromKey = this.D_pathList[S_pathUuid]['from']
+			// S_toKey = this.D_pathList[S_pathUuid]['to']
+			// formXY = getPosition(S_fromKey)
+			// toXY = getPosition(S_toKey)
 			// console.log(this.D_pathList[S_pathUuid])
 			// D_newLineInfos = this.clacLinePathPoints(formXY, toXY, this.D_pathList[S_pathUuid]['type'])
 			// console.log(D_newLineInfos)
@@ -840,7 +854,7 @@ var app = new Vue({
 			// console.log(this.D_pathList[S_pathUuid])
 			
 
-		}
+		// }
 	
 	},
 	

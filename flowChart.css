@@ -141,6 +141,15 @@ body {
 .hover-path {
 	stroke-width: 4;
 	z-index:998;
+	stroke-dasharray: 20;
+	animation: dash 5s ease-in-out;
+	animation-iteration-count: infinite;
+}
+
+@keyframes dash {
+	to {
+		stroke-dashoffset: -1000;
+	}
 }
 
 .stoke-background {
@@ -299,3 +308,4 @@ body {
 .moved-point:hover {
 	fill: aqua;
 }
+

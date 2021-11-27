@@ -11,6 +11,10 @@
 	<link href="./CSS/fontawesome-free-5.15.4-web/css/brands.css" rel="stylesheet">
 	<link href="./CSS/fontawesome-free-5.15.4-web/css/solid.css" rel="stylesheet">
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.8.0/gsap.min.js"></script>
+	<!-- <script src="http://35.194.167.48:8999/static/TreeStudioAPIs/MotionPathPlugin.js"></script> -->
+	<script src="./minified/MotionPathPlugin.min.js"></script>
+	minified
 </head>
 <body>
 	<div id="app">
@@ -155,7 +159,7 @@
 								(D_LinkItem.start_x + (-D_LinkItem.start_x+D_LinkItem.end_x)*D_LinkItem.mid_x)+' '+(D_LinkItem.start_y + (-D_LinkItem.start_y+D_LinkItem.end_y)*D_LinkItem.mid_y)+
 								' T'+D_LinkItem.end_x+','+D_LinkItem.end_y
 							" 
-							class='stoke'
+							class='stoke path_testtest'
 							:class="D_hoverList[S_uuid]!=undefined?'hover-path':''"
 							></path>
 							<circle class='moved-point' 
@@ -166,6 +170,12 @@
 							:cx="((D_LinkItem.start_x + (-D_LinkItem.start_x+D_LinkItem.end_x)*D_LinkItem.mid_x)+D_LinkItem.q_x*(-D_LinkItem.start_x+D_LinkItem.end_x))" 
 							:cy="((D_LinkItem.start_y + (-D_LinkItem.start_y+D_LinkItem.end_y)*D_LinkItem.mid_y)+D_LinkItem.q_y*(-D_LinkItem.start_y+D_LinkItem.end_y))" 
 							r="5" @mousedown.left.stop="moveCenterPoint_qPoint($event, D_LinkItem)"/>
+
+
+							<circle r="5" fill="#af4" :id="'circle_'+S_uuid">
+							</circle>
+
+
 						</g>
 						<g v-else-if="D_LinkItem.type=='r-l-pair'">
 							<path stroke="transparent" stroke-width="2" fill="none"
@@ -341,6 +351,8 @@
 							(Math.abs(testLine.y_2-testLine.y_1)+(testLine.y_2-testLine.y_1)+6)" 
 						class='stoke'
 						></path>
+						
+
 					</g>
 				</svg>
 
