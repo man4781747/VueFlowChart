@@ -234,8 +234,13 @@
 							:id="'path_'+S_uuid"
 							marker-end="url(#arrow)"
 							:d="'M'+D_LinkItem.start_x+','+D_LinkItem.start_y+
-								' V'+( Math.min(D_LinkItem.start_y, D_LinkItem.end_y) -D_LinkItem.distance)+
-								' H'+D_LinkItem.end_x+
+								' V'+(Math.min(D_LinkItem.start_y, D_LinkItem.end_y) - D_LinkItem.distance + D_LinkItem.radius)+
+								' Q'+D_LinkItem.start_x+' '+(Math.min(D_LinkItem.start_y, D_LinkItem.end_y) - D_LinkItem.distance)+
+								',' +(D_LinkItem.start_x-D_LinkItem.radius*(D_LinkItem.start_x-D_LinkItem.end_x)/Math.abs(D_LinkItem.start_x-D_LinkItem.end_x)) + 
+								' ' + (Math.min(D_LinkItem.start_y, D_LinkItem.end_y) - D_LinkItem.distance) +
+								' H'+(D_LinkItem.end_x+D_LinkItem.radius*(D_LinkItem.start_x-D_LinkItem.end_x)/Math.abs(D_LinkItem.start_x-D_LinkItem.end_x))+
+								' Q'+D_LinkItem.end_x+' '+(Math.min(D_LinkItem.start_y, D_LinkItem.end_y) - D_LinkItem.distance)+
+								','+D_LinkItem.end_x + ' ' + (Math.min(D_LinkItem.start_y, D_LinkItem.end_y) - D_LinkItem.distance + D_LinkItem.radius) +
 								' V'+D_LinkItem.end_y
 								" 
 							class='stoke'
@@ -252,8 +257,13 @@
 							:id="'path_'+S_uuid"
 							marker-end="url(#arrow)"
 							:d="'M'+D_LinkItem.start_x+','+D_LinkItem.start_y+
-								' V'+( Math.max(D_LinkItem.start_y, D_LinkItem.end_y)  + D_LinkItem.distance)+
-								' H'+D_LinkItem.end_x+
+								' V'+( Math.max(D_LinkItem.start_y, D_LinkItem.end_y)  + D_LinkItem.distance - D_LinkItem.radius)+
+								' Q'+D_LinkItem.start_x+' '+(Math.max(D_LinkItem.start_y, D_LinkItem.end_y) + D_LinkItem.distance)+
+								',' +(D_LinkItem.start_x-D_LinkItem.radius*(D_LinkItem.start_x-D_LinkItem.end_x)/Math.abs(D_LinkItem.start_x-D_LinkItem.end_x)) + 
+								' ' + (Math.max(D_LinkItem.start_y, D_LinkItem.end_y) + D_LinkItem.distance) +
+								' H'+(D_LinkItem.end_x+D_LinkItem.radius*(D_LinkItem.start_x-D_LinkItem.end_x)/Math.abs(D_LinkItem.start_x-D_LinkItem.end_x))+
+								' Q'+D_LinkItem.end_x+' '+(Math.max(D_LinkItem.start_y, D_LinkItem.end_y) + D_LinkItem.distance)+
+								','+D_LinkItem.end_x + ' ' + (Math.max(D_LinkItem.start_y, D_LinkItem.end_y) + D_LinkItem.distance - D_LinkItem.radius) +
 								' V'+D_LinkItem.end_y
 								" 
 							class='stoke'
@@ -264,72 +274,53 @@
 							:cy="(Math.max(D_LinkItem.start_y, D_LinkItem.end_y) + D_LinkItem.distance)" 
 							r="5" @mousedown.left.stop="moveCenterPoint_distance($event, D_LinkItem, -1)"/>
 						</g>
+						<g v-else-if="D_LinkItem.type=='same-r'">
+							<path stroke="transparent" stroke-width="2" fill="none" 
+							@contextmenu.prevent.stop="removePath(S_uuid)"
+							:id="'path_'+S_uuid"
+							marker-end="url(#arrow)"
+							:d="'M'+D_LinkItem.start_x+','+D_LinkItem.start_y+
+								' H'+( Math.max(D_LinkItem.start_x, D_LinkItem.end_x)  + D_LinkItem.distance - D_LinkItem.radius)+
+								' Q'+(Math.max(D_LinkItem.start_x, D_LinkItem.end_x) + D_LinkItem.distance)+' '+D_LinkItem.start_y+
+								',' + (Math.max(D_LinkItem.start_x, D_LinkItem.end_x) + D_LinkItem.distance) + 
+								' ' +(D_LinkItem.start_y-D_LinkItem.radius*(D_LinkItem.start_y-D_LinkItem.end_y)/Math.abs(D_LinkItem.start_y-D_LinkItem.end_y)) + 
+								' V'+(D_LinkItem.end_y+D_LinkItem.radius*(D_LinkItem.start_y-D_LinkItem.end_y)/Math.abs(D_LinkItem.start_y-D_LinkItem.end_y))+
+								' Q'+(Math.max(D_LinkItem.start_x, D_LinkItem.end_x) + D_LinkItem.distance)+' '+D_LinkItem.end_y+
+								',' + ( Math.max(D_LinkItem.start_x, D_LinkItem.end_x)  + D_LinkItem.distance - D_LinkItem.radius) + ' ' + D_LinkItem.end_y +
+								' H'+D_LinkItem.end_x
+								" 
+							class='stoke'
+							:class="D_hoverList[S_uuid]!=undefined?'hover-path':''"
+							></path>
+							<circle class='moved-point' 
+							:cx="(Math.max(D_LinkItem.start_x, D_LinkItem.end_x) + D_LinkItem.distance)" 
+							:cy="(D_LinkItem.start_y+D_LinkItem.end_y)/2" 
+							r="5" @mousedown.left.stop="moveCenterPoint_distance_H($event, D_LinkItem, -1)"/>
+						</g>
+						<g v-else-if="D_LinkItem.type=='same-l'">
+							<path stroke="transparent" stroke-width="2" fill="none" 
+							@contextmenu.prevent.stop="removePath(S_uuid)"
+							:id="'path_'+S_uuid"
+							marker-end="url(#arrow)"
+							:d="'M'+D_LinkItem.start_x+','+D_LinkItem.start_y+
+								' H'+( Math.min(D_LinkItem.start_x, D_LinkItem.end_x)  - D_LinkItem.distance + D_LinkItem.radius)+
+								' Q'+(Math.min(D_LinkItem.start_x, D_LinkItem.end_x) - D_LinkItem.distance)+' '+D_LinkItem.start_y+
+								',' + (Math.min(D_LinkItem.start_x, D_LinkItem.end_x) - D_LinkItem.distance) + 
+								' ' +(D_LinkItem.start_y-D_LinkItem.radius*(D_LinkItem.start_y-D_LinkItem.end_y)/Math.abs(D_LinkItem.start_y-D_LinkItem.end_y)) + 
+								' V'+(D_LinkItem.end_y+D_LinkItem.radius*(D_LinkItem.start_y-D_LinkItem.end_y)/Math.abs(D_LinkItem.start_y-D_LinkItem.end_y))+
+								' Q'+(Math.min(D_LinkItem.start_x, D_LinkItem.end_x) - D_LinkItem.distance)+' '+D_LinkItem.end_y+
+								',' + ( Math.min(D_LinkItem.start_x, D_LinkItem.end_x)  - D_LinkItem.distance + D_LinkItem.radius) + ' ' + D_LinkItem.end_y +
+								' H'+D_LinkItem.end_x
+								" 
+							class='stoke'
+							:class="D_hoverList[S_uuid]!=undefined?'hover-path':''"
+							></path>
+							<circle class='moved-point' 
+							:cx="(Math.min(D_LinkItem.start_x, D_LinkItem.end_x) - D_LinkItem.distance)" 
+							:cy="(D_LinkItem.start_y+D_LinkItem.end_y)/2" 
+							r="5" @mousedown.left.stop="moveCenterPoint_distance_H($event, D_LinkItem)"/>
+						</g>
 
-
-
-
- 						<path stroke="transparent" stroke-width="2" fill="none" 
-						@contextmenu.prevent.stop="removePath(S_uuid)"
-						v-else-if="D_LinkItem.type=='same-b'"
-						:id="'path_'+S_uuid"
-						marker-end="url(#arrow)"
-						:d="'M'+D_LinkItem.start_x+','+D_LinkItem.start_y+
-						    ' V'+D_LinkItem.mid_y+
-							' Q'+D_LinkItem.q_x+' '+D_LinkItem.q_y+','+D_LinkItem.mid_x_2+' '+D_LinkItem.mid_y_2+
-							' H'+D_LinkItem.mid_x_3+
-							' Q'+D_LinkItem.q_x_2+' '+D_LinkItem.q_y_2+','+D_LinkItem.mid_x_4+' '+D_LinkItem.mid_y_4+
-							' V'+D_LinkItem.end_y
-							" 
-						class='stoke'
-						:class="D_hoverList[S_uuid]!=undefined?'hover-path':''"
-						></path>
- 						<path stroke="transparent" stroke-width="2" fill="none" 
-						@contextmenu.prevent.stop="removePath(S_uuid)"
-						v-else-if="D_LinkItem.type=='same-r'"
-						:id="'path_'+S_uuid"
-						marker-end="url(#arrow)"
-						:d="'M'+D_LinkItem.start_x+','+D_LinkItem.start_y+
-						    ' H'+D_LinkItem.mid_x+
-							' Q'+D_LinkItem.q_x+' '+D_LinkItem.q_y+','+D_LinkItem.mid_x_2+' '+D_LinkItem.mid_y_2+
-							' V'+D_LinkItem.mid_y_3+
-							' Q'+D_LinkItem.q_x_2+' '+D_LinkItem.q_y_2+','+D_LinkItem.mid_x_4+' '+D_LinkItem.mid_y_4+
-							' H'+D_LinkItem.end_x
-							" 
-						class='stoke'
-						:class="D_hoverList[S_uuid]!=undefined?'hover-path':''"
-						></path>
- 						<path stroke="transparent" stroke-width="2" fill="none" 
-						@contextmenu.prevent.stop="removePath(S_uuid)"
-						v-else-if="D_LinkItem.type=='same-l'"
-						:id="'path_'+S_uuid"
-						marker-end="url(#arrow)"
-						:d="'M'+D_LinkItem.start_x+','+D_LinkItem.start_y+
-						    ' H'+D_LinkItem.mid_x+
-							' Q'+D_LinkItem.q_x+' '+D_LinkItem.q_y+','+D_LinkItem.mid_x_2+' '+D_LinkItem.mid_y_2+
-							' V'+D_LinkItem.mid_y_3+
-							' Q'+D_LinkItem.q_x_2+' '+D_LinkItem.q_y_2+','+D_LinkItem.mid_x_4+' '+D_LinkItem.mid_y_4+
-							' H'+D_LinkItem.end_x
-							" 
-						:class="D_hoverList[S_uuid]!=undefined?'hover-path':''"
-						class='stoke'
-						></path>
-
-
-						<!-- <path stroke="transparent" stroke-width="2" fill="none" 
-						:id="'path_'+S_uuid"
-						marker-end="url(#arrow)"
-						:d="'M'+D_LinkItem.start_x+','+D_LinkItem.start_y+
-						    'L'+D_LinkItem.end_x+','+D_LinkItem.end_y" 
-						class='stoke'
-						></path>
-						<path stroke="transparent" stroke-width="4" fill="none" 
-						:id="'path_back_'+S_uuid"
-						marker-end="url(#arrow)"
-						:d="'M'+D_LinkItem.start_x+','+D_LinkItem.start_y+
-						    'L'+D_LinkItem.end_x+','+D_LinkItem.end_y" 
-						class='stoke-background'
-						@contextmenu.prevent.stop="removePath(S_uuid)"
-						></path> -->
 					</g>
 				</svg>
 

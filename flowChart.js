@@ -643,6 +643,19 @@ var app = new Vue({
 			}
 		},
 
+		moveCenterPoint_distance_H(e, D_LinkItem, type=1){
+
+			let disX = e.clientX + D_LinkItem.distance*type
+			var D_LinkItem = D_LinkItem
+			document.onmousemove = (e)=>{
+				let left = -(e.clientX - disX)*type
+				D_LinkItem['distance'] = Math.max(left,30)
+			}
+			document.onmouseup = (e) => {
+				document.onmousemove = null;
+				document.onmouseup = null;
+			}
+		},
 
 		mousewheelBackgroundCanvas(e){
 			return null
@@ -683,81 +696,16 @@ var app = new Vue({
 				D_linkInfo['radius'] = 15 //px
 			} else if (S_type=='same-t'){
 				D_linkInfo['distance'] = 30 //px
+				D_linkInfo['radius'] = 15 //px
 			} else if (S_type=='same-b'){
 				D_linkInfo['distance'] = 30 //px
-				var radiusValue = Math.min(Math.abs(endPointXOnCanvas - startPointXOnCanvas)/2,this.I_pathRadius)
-				D_linkInfo['mid_x'] = startPointXOnCanvas
-				D_linkInfo['mid_y'] = Math.max(startPointYOnCanvas, endPointYOnCanvas) + 15
-				D_linkInfo['q_x'] = startPointXOnCanvas
-				D_linkInfo['q_y'] = Math.max(startPointYOnCanvas, endPointYOnCanvas) + 15 + radiusValue
-				D_linkInfo['mid_y_2'] = Math.max(startPointYOnCanvas, endPointYOnCanvas) + 15 + radiusValue
-				if (endPointXOnCanvas > startPointXOnCanvas){
-					D_linkInfo['mid_x_2'] = startPointXOnCanvas + radiusValue
-				} else {
-					D_linkInfo['mid_x_2'] = startPointXOnCanvas - radiusValue
-				}
-				
-				D_linkInfo['mid_y_3'] = Math.max(startPointYOnCanvas, endPointYOnCanvas)  + 15 + radiusValue
-				if (endPointXOnCanvas > startPointXOnCanvas){
-					D_linkInfo['mid_x_3'] = endPointXOnCanvas - radiusValue
-				} else {
-					D_linkInfo['mid_x_3'] = endPointXOnCanvas + radiusValue
-				}
-				D_linkInfo['q_x_2'] = endPointXOnCanvas
-				D_linkInfo['q_y_2'] = Math.max(startPointYOnCanvas, endPointYOnCanvas) + 15 + radiusValue
-				
-				D_linkInfo['mid_y_4'] = Math.max(startPointYOnCanvas, endPointYOnCanvas) + 15
-				D_linkInfo['mid_x_4'] = endPointXOnCanvas
+				D_linkInfo['radius'] = 15 //px
 			} else if (S_type=='same-r'){
-				var radiusValue = Math.min(Math.abs(endPointYOnCanvas - startPointYOnCanvas)/2,this.I_pathRadius)
-				D_linkInfo['mid_x'] = Math.max(startPointXOnCanvas, endPointXOnCanvas) + 15
-				D_linkInfo['mid_y'] = startPointYOnCanvas
-				D_linkInfo['q_x'] = Math.max(startPointXOnCanvas, endPointXOnCanvas) + 15 + radiusValue
-				D_linkInfo['q_y'] = startPointYOnCanvas
-				D_linkInfo['mid_x_2'] = Math.max(startPointXOnCanvas, endPointXOnCanvas) + 15 + radiusValue
-				
-				if (endPointYOnCanvas > startPointYOnCanvas){
-					D_linkInfo['mid_y_2'] = startPointYOnCanvas + radiusValue
-				} else {
-					D_linkInfo['mid_y_2'] = startPointYOnCanvas - radiusValue
-				}
-				
-				D_linkInfo['mid_x_3'] = Math.max(startPointXOnCanvas, endPointXOnCanvas) + 15 + radiusValue
-				if (endPointYOnCanvas > startPointYOnCanvas){
-					D_linkInfo['mid_y_3'] = endPointYOnCanvas - radiusValue
-				} else {
-					D_linkInfo['mid_y_3'] = endPointYOnCanvas + radiusValue
-				}
-				D_linkInfo['q_x_2'] = Math.max(startPointXOnCanvas, endPointXOnCanvas) + 15 + radiusValue
-				D_linkInfo['q_y_2'] = endPointYOnCanvas
-				
-				D_linkInfo['mid_x_4'] = Math.max(startPointXOnCanvas, endPointXOnCanvas) + 15
-				D_linkInfo['mid_y_4'] = endPointYOnCanvas
+				D_linkInfo['distance'] = 30 //px
+				D_linkInfo['radius'] = 15 //px
 			} else if (S_type=='same-l'){
-				var radiusValue = Math.min(Math.abs(endPointYOnCanvas - startPointYOnCanvas)/2,this.I_pathRadius)
-				D_linkInfo['mid_x'] = Math.min(startPointXOnCanvas, endPointXOnCanvas) - 15
-				D_linkInfo['mid_y'] = startPointYOnCanvas
-				D_linkInfo['q_x'] = Math.min(startPointXOnCanvas, endPointXOnCanvas) - 15 - radiusValue
-				D_linkInfo['q_y'] = startPointYOnCanvas
-				D_linkInfo['mid_x_2'] = Math.min(startPointXOnCanvas, endPointXOnCanvas) - 15 - radiusValue
-				
-				if (endPointYOnCanvas > startPointYOnCanvas){
-					D_linkInfo['mid_y_2'] = startPointYOnCanvas + radiusValue
-				} else {
-					D_linkInfo['mid_y_2'] = startPointYOnCanvas - radiusValue
-				}
-				
-				D_linkInfo['mid_x_3'] = Math.min(startPointXOnCanvas, endPointXOnCanvas) - 15 - radiusValue
-				if (endPointYOnCanvas > startPointYOnCanvas){
-					D_linkInfo['mid_y_3'] = endPointYOnCanvas - radiusValue
-				} else {
-					D_linkInfo['mid_y_3'] = endPointYOnCanvas + radiusValue
-				}
-				D_linkInfo['q_x_2'] = Math.min(startPointXOnCanvas, endPointXOnCanvas) - 15 - radiusValue
-				D_linkInfo['q_y_2'] = endPointYOnCanvas
-				
-				D_linkInfo['mid_x_4'] = Math.min(startPointXOnCanvas, endPointXOnCanvas) - 15
-				D_linkInfo['mid_y_4'] = endPointYOnCanvas
+				D_linkInfo['distance'] = 30 //px
+				D_linkInfo['radius'] = 15 //px
 			}
 			
 			
@@ -850,7 +798,30 @@ var app = new Vue({
 				}
 
 			}
-
+			else if (D_LinkItemInfo.type=='same-t'){
+				d_len = Math.abs(D_LinkItemInfo.start_x-D_LinkItemInfo.end_x)
+				if (d_len <= 30){
+					D_LinkItemInfo['radius'] = d_len/2
+				} else {
+					// D_LinkItemInfo['radius'] = Math.min(Math.max(D_LinkItemInfo.radius,15), max_d)
+				}
+			}
+			else if (D_LinkItemInfo.type=='same-b'){
+				d_len = Math.abs(D_LinkItemInfo.start_x-D_LinkItemInfo.end_x)
+				if (d_len <= 30){
+					D_LinkItemInfo['radius'] = d_len/2
+				} else {
+					// D_LinkItemInfo['radius'] = Math.min(Math.max(D_LinkItemInfo.radius,15), max_d)
+				}
+			}
+			else if (D_LinkItemInfo.type=='same-r'){
+				d_len = Math.abs(D_LinkItemInfo.start_y-D_LinkItemInfo.end_y)
+				if (d_len <= 30){
+					D_LinkItemInfo['radius'] = d_len/2
+				} else {
+					// D_LinkItemInfo['radius'] = Math.min(Math.max(D_LinkItemInfo.radius,15), max_d)
+				}
+			}
 		},
 	},
 	
